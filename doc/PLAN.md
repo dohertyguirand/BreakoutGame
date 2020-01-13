@@ -27,3 +27,4 @@ I will add the following cheat keys:
  
 ### Something Extra
 I plan to add a points system to the game. Each time a block is hit the player will get a certain amount of points. I'll implement a system where the amount of points given increases if the player is able to hit a series of blocks with one hit of the paddle. There will be a points display on the screen so the player can see their score. 
+I think that this is a substantial addition because it will motivate the player to play as efficiently as possible. My hope is that they wil try to find ways to hit as many blocks as possible: keeping the game interesting. 
