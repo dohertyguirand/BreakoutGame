@@ -3,11 +3,11 @@ game
 
 This project implements the game of Breakout.
 
-Name: 
+Name:  Doherty Guirand
 
 ### Timeline
 
-Start Date: 
+Start Date: 01/12/2020
 
 Finish Date: 
 
