@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 
 
+
 public class Main extends Application {
     public static final String TITLE = "Brick Breaker";
     public static final int SIZE = 700;
@@ -43,7 +44,6 @@ public class Main extends Application {
 
 
     private Rectangle myPaddle;
-    private Rectangle myGameScreen;
     private Text myTitle;
     private Text myPoints;
     private int myPointValue;
@@ -70,43 +70,52 @@ public class Main extends Application {
         animation.play();
     }
 
+//    private void setSplashScreen(){
+//        Text welcomeStatement = new Text("Welcome to Brick Breaker ");
+//        welcomeStatement.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
+//        welcomeStatement.setX(SIZE/2 - welcomeStatement.getBoundsInLocal().getWidth()/2);
+//        welcomeStatement.setY(25);
+//        root.getChildren().add(welcomeStatement);
+//        Text pressEnter = new Text("Press UP to continue");
+//
+//        pressEnter.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 30));
+//        pressEnter.setX((SIZE/2 - pressEnter.getBoundsInLocal().getWidth()/2));
+//        pressEnter.setY(30 + welcomeStatement.getBoundsInLocal().getHeight());
+//        root.getChildren().add(pressEnter);
+//        splashScreenText.add(welcomeStatement);
+//        splashScreenText.add(pressEnter);
+//    }
+
     // Create the game's "scene": what shapes will be in the game and their starting properties
     private Scene setupGame () {
-        // create one top level collection to organize the things in the scene
-        // make some shapes and set their properties
-        if(myLevelCount == 0){
-            Brick.makeLevelOneBricks();
-            PowerUps.makeLevelOnePowerUps();
-        }
-        Balls.addBouncer();
-        Balls.addBouncerInfo();
-        myPaddle = new Rectangle(SIZE / 2, SIZE/ 2 - 50, GROWER_WIDTH, GROWER_HEIGHT);
-        myPaddle.setFill(GROWER_COLOR);
-
-        // order added to the group is the order in which they are drawn
-        addText();
-        addChildren();
-        // create a place to see the shapes
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
-        // respond to input
-        scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
-        scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
+            if(myLevelCount == 0){
+                Brick.makeLevelOneBricks();
+                PowerUps.makeLevelOnePowerUps();
+            }
+            Balls.addBouncer();
+            Balls.addBouncerInfo();
+            myPaddle = new Rectangle(SIZE / 2, SIZE/ 2 - 50, GROWER_WIDTH, GROWER_HEIGHT);
+            myPaddle.setFill(GROWER_COLOR);
+
+            // order added to the group is the order in which they are drawn
+            addText();
+            addChildren();
+            // create a place to see the shapes
+
+            // respond to input
+            scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
+            scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
+
         return scene;
     }
 
     private void addChildren(){
         root.getChildren().add(myPaddle);
         root.getChildren().add(myTitle);
-        for(ImageView powerup : PowerUps.getPowerUps()){
-            root.getChildren().add(powerup);
-        }
-        for(ImageView brick : Brick.getBricks()){
-            root.getChildren().add(brick);
-        }
-        for(ImageView bouncer : Balls.getBouncers()){
-            root.getChildren().add(bouncer);
-        }
-
+        root.getChildren().addAll(PowerUps.getPowerUps());
+        root.getChildren().addAll(Brick.getBricks());
+        root.getChildren().addAll(Balls.getBouncers());
     }
 
     private void step (double elapsedTime) {
@@ -295,16 +304,14 @@ public class Main extends Application {
        myPoints = new Text();
        myTitle.setText("Brick Breaker");
        myTitle.setY(SIZE/2 -10);
-       myTitle.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
+       myTitle.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 25));
        myTitle.setX(SIZE/2 - myTitle.getBoundsInLocal().getWidth()/2);
        myTitle.setFill(Color.LIGHTCORAL);
        addPoints();
    }
 
    public void addPoints(){
-        if(root.getChildren().contains(myPoints)){
-            root.getChildren().remove(myPoints);
-        }
+        root.getChildren().remove(myPoints);
         myPoints.setText("Points:" + " " + myPointValue);
         myPoints.setY(SIZE/2 - 10);
         myPoints.setX(SIZE/2  + myTitle.getBoundsInLocal().getWidth()/2 + 10);

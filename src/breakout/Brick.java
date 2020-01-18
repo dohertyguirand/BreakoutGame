@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 import java.util.ArrayList;
 
 public class Brick {
-    private static ArrayList<ImageView> myBricks = new ArrayList<>();;
+    private static ArrayList<ImageView> myBricks = new ArrayList<>();
     private static final String metalBrickImage = "brick3.gif";
     private static final String woodBrickImage = "brick5.gif";
     private static final String[] Brick_Images = {"brick1.gif", "brick1.gif", "brick2.gif", "brick2.gif", "brick4.gif", "brick4.gif", "brick5.gif", "brick5.gif"};
@@ -25,10 +25,10 @@ public class Brick {
                brickYLocations[i] = BRICKHEIGHT * i;
            }
         }
-        for(int x = 0; x < brickXLocations.length; x++){
-            for(int y = 0; y < brickYLocations.length; y ++){
+        for (double brickXLocation : brickXLocations) {
+            for (int y = 0; y < brickYLocations.length; y++) {
                 ImageView brick = new ImageView(Brick_Images[y]);
-                brick.setX(brickXLocations[x]);
+                brick.setX(brickXLocation);
                 brick.setY(brickYLocations[y]);
                 myBricks.add(brick);
             }
@@ -42,14 +42,14 @@ public class Brick {
         for(int i = 0; i < NUMCOLS; i ++){
             brickXLocations[i] = i * BRICKWIDTH;
             if(i < 2){
-                brickYLocations[i] = BRICKHEIGHT * i;
+                brickYLocations[i] = BRICKHEIGHT * i + 160;
             }
         }
-        for(int i = 0; i < brickXLocations.length; i++){
-            for(int y = 0; y < brickYLocations.length; y ++){
+        for (double brickXLocation : brickXLocations) {
+            for (double brickYLocation : brickYLocations) {
                 ImageView brick = new ImageView(metalBrickImage);
-                brick.setX(brickXLocations[i]);
-                brick.setY(brickYLocations[y]);
+                brick.setX(brickXLocation);
+                brick.setY(brickYLocation);
                 myBricks.add(brick);
                 ret.add(brick);
             }

@@ -12,7 +12,7 @@ public class Balls {
     public static ImageView addBouncer(){
         ImageView bouncer = new ImageView(BOUNCER_IMAGE);
         bouncer.setX(Main.SIZE/2 - bouncer.getBoundsInLocal().getWidth()/2);
-        bouncer.setY(Main.SIZE/2 - bouncer.getBoundsInLocal().getWidth()/2);
+        bouncer.setY(Main.SIZE/2 - 70);
         myBouncers.add(bouncer);
         return bouncer;
     }
