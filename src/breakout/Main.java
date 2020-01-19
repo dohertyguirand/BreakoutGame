@@ -91,12 +91,10 @@ public class Main extends Application {
     // Create the game's "scene": what shapes will be in the game and their starting properties
     private Scene setupGame () {
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
-        mySplashScreen = new Rectangle(0,0, SIZE, SIZE/2);
-        mySplashScreen.setFill(Color.BLACK);
         myPaddle = new Rectangle(Main.SIZE/2, PaddleY,PADDLE_WIDTH, PADDLE_HEIGHT);
-        //Image image = new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif"));
-        //ImagePattern paddleImage   = new ImagePattern(image);
-        myPaddle.setFill(Color.AQUAMARINE);
+        ImagePattern paddleImage   = new ImagePattern(new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif")));
+        myPaddle.setFill(paddleImage);
+        Texts.setSplashScreenText();
         if(myLevelCount == 0){
             Brick.makeLevelOneBricks();
             PowerUps.makeLevelOnePowerUps();
@@ -106,7 +104,6 @@ public class Main extends Application {
         Balls.addBouncer();
         addPerminateText();
         addBallText();
-        Texts.setSplashScreenText();
         addChildren();
 
             // respond to input
@@ -125,7 +122,6 @@ public class Main extends Application {
             root.getChildren().addAll(Balls.getBouncers());
             root.getChildren().addAll(Lives.getLives());
             root.getChildren().addAll(myBallText);
-            root.getChildren().add(mySplashScreen);
             root.getChildren().addAll(Texts.getMySplashScreenText());
     }
 
@@ -174,15 +170,14 @@ public class Main extends Application {
             root.getChildren().add(bouncer);
             setMoveBallOff();
             addBallText();
+            root.getChildren().addAll(pressUpText);
         }
     }
 
     public static void addBallText(){
         int numLives = Lives.getLives().size();
-        Text pressUp = new Text("Press UP to begin");
+        Text pressUp = new Text("Press UP to start");
         Text numLifeCount = new Text("Number of Lives:" + " " + numLives);
-        pressUpText.add(pressUp);
-        pressUpText.add(numLifeCount);
         pressUp.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 25));
         numLifeCount.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
         pressUp.setFill(Color.WHITE);
@@ -191,6 +186,8 @@ public class Main extends Application {
         pressUp.setY(SIZE/4);
         numLifeCount.setX(SIZE/2 - numLifeCount.getBoundsInLocal().getWidth()/2);
         numLifeCount.setY(SIZE/4 + MARGIN + pressUp.getBoundsInLocal().getHeight());
+        pressUpText.add(pressUp);
+        pressUpText.add(numLifeCount);
         myBallText.add(pressUp);
         myBallText.add(numLifeCount);
     }
@@ -227,13 +224,25 @@ public class Main extends Application {
             }
         }
         if(!INGAME){
-            if(code == KeyCode.UP){
-                root.getChildren().remove(mySplashScreen);
+            if(code == KeyCode.UP) {
+
+                if(!root.getChildren().contains(Texts.powerupscreen)){
+                    root.getChildren().remove(Texts.paddlescreen);
+                }
+                if(!root.getChildren().contains(Texts.welcomescreen)){
+                    root.getChildren().remove(Texts.powerupscreen);
+                }
+                if (root.getChildren().contains(Texts.welcomescreen)) {
+                    root.getChildren().remove(Texts.welcomescreen);
+                }
+
+
             }
-
             if(code == KeyCode.DOWN){
-
-                INGAME = true;
+                if(!root.getChildren().contains(Texts.paddlescreen)){
+                    root.getChildren().remove(Texts.getPointsscreen());
+                }
+                if(!root.getChildren().contains(Texts.getPointsscreen())) INGAME = true;
             }
         }
 
@@ -257,16 +266,12 @@ public class Main extends Application {
                     bouncerinfo.get(k)[0] *= -1;
                 }
                 bouncerinfo.get(k)[1] *= -1;
-                myPaddle.setFill(HIGHLIGHT);
                 if(PowerUps.getPaddleExpansionOn()){
                     PaddleHitCount++;
                 }
                 consecutiveBricksHits = 0;
             }
 
-            else {
-                myPaddle.setFill(GROWER_COLOR);
-            }
             if(BrickBombOn){
                 for(ImageView bomb : PowerUps.getBombs()){
                     if(myPaddle.getBoundsInLocal().intersects(bomb.getBoundsInParent())){
