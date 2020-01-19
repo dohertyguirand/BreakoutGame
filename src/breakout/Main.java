@@ -17,13 +17,17 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.text.Text;
 
+import java.awt.*;
+import java.security.Key;
+import java.security.Signature;
 import java.util.ArrayList;
-
+import java.util.LinkedList;
 
 
 public class Main extends Application {
     public static final String TITLE = "Brick Breaker";
     public static final int SIZE = 700;
+    public static final int MARGIN = 10;
     public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
@@ -41,9 +45,13 @@ public class Main extends Application {
     private static Group root = new Group();
     private static int PaddleHitCount = 0;
     private boolean BrickBombOn = false;
+    private static int rightCount = 0;
+    private static int leftCount = 0;
+    private static ArrayList<Text> pressUpText  = new ArrayList<>();
 
 
-    private Rectangle myPaddle;
+
+    private static Rectangle myPaddle;
     private Text myTitle;
     private Text myPoints;
     private int myPointValue;
@@ -92,17 +100,14 @@ public class Main extends Application {
             if(myLevelCount == 0){
                 Brick.makeLevelOneBricks();
                 PowerUps.makeLevelOnePowerUps();
+                Lives.resetLives();
             }
-            Balls.addBouncer();
-            Balls.addBouncerInfo();
             myPaddle = new Rectangle(SIZE / 2, SIZE/ 2 - 50, GROWER_WIDTH, GROWER_HEIGHT);
             myPaddle.setFill(GROWER_COLOR);
-
+            Balls.addBouncer();
             // order added to the group is the order in which they are drawn
             addText();
             addChildren();
-            // create a place to see the shapes
-
             // respond to input
             scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
             scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
@@ -116,17 +121,22 @@ public class Main extends Application {
         root.getChildren().addAll(PowerUps.getPowerUps());
         root.getChildren().addAll(Brick.getBricks());
         root.getChildren().addAll(Balls.getBouncers());
+        root.getChildren().addAll(Lives.getLives());
     }
 
     private void step (double elapsedTime) {
         // update "actors" attributes
         checkCollisons();
         checkPowerUpCollisons();
+        checkLives();
         moveBouncers(elapsedTime);
         PowerUps.managePaddleLengthPowerUp();
         changeToOriginalPaddleSize();
-        if (myPaddle.getX() < 0 || myPaddle.getX() >= (SIZE -myPaddle.getBoundsInLocal().getWidth())) {
-            PADDLE_MOVE *= 0;
+        if (myPaddle.getX() <= - myPaddle.getWidth()){
+            myPaddle.setX(SIZE-myPaddle.getWidth());
+        }
+        if(myPaddle.getX()>= SIZE){
+            myPaddle.setX(0);
         }
         if(BrickBombOn){
             ArrayList<ImageView> bombs = PowerUps.getBombs();
@@ -143,25 +153,64 @@ public class Main extends Application {
         }
     }
 
+    public static void checkLives(){
+        int numLives = Lives.getLifeCount();
+        if(numLives == 0){
+            Text youLose = new Text("You Lose");
+            youLose.setX(SIZE/2);
+            youLose.setY(SIZE/4);
+            youLose.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
+            youLose.setFill(Color.RED);
+            root.getChildren().add(youLose);
+        }
+        if(numLives != 0 && Balls.getBouncers().size() == 0){
+            addBallText();
+        }
+    }
+
+    public static void addBallText(){
+        int numLives = Lives.getLives().size();
+        Text pressUp = new Text("Press up to continue");
+        Text numLifeCount = new Text("Number of Lives:" + " " + numLives);
+        pressUpText.add(pressUp);
+        pressUpText.add(numLifeCount);
+        pressUp.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 25));
+        numLifeCount.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
+        pressUp.setFill(Color.WHITE);
+        numLifeCount.setFill(Color.LIGHTPINK);
+        pressUp.setX(SIZE/2 - pressUp.getBoundsInLocal().getWidth()/2);
+        pressUp.setY(SIZE/4);
+        numLifeCount.setX(SIZE/2 - numLifeCount.getBoundsInLocal().getWidth()/2);
+        numLifeCount.setY(SIZE/4 + MARGIN + pressUp.getBoundsInLocal().getHeight());
+        root.getChildren().add(pressUp);
+        root.getChildren().add(numLifeCount);
+    }
+
+    public static void removeText(ArrayList<Text> text){
+        root.getChildren().removeAll(text);
+    }
+
 
 
 
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
         if (code == KeyCode.RIGHT) {
-           // myMover.setX(myMover.getX() + MOVER_SPEED);
-            myPaddle.setX(myPaddle.getX() + PADDLE_SPEED);
+            leftCount = 0;
+            rightCount+= .5;
+            myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
         }
         else if (code == KeyCode.LEFT) {
-            //myMover.setX(myMover.getX() - MOVER_SPEED);
-            myPaddle.setX(myPaddle.getX() - PADDLE_SPEED);
+            rightCount=0;
+            leftCount+=.5;
+            myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
         }
-
-        if(myPaddle.getX() >= SIZE - myPaddle.getWidth()){
-            myPaddle.setX(SIZE-myPaddle.getWidth());
-        }
-        else if(myPaddle.getX() < 0){
-            myPaddle.setX(0);
+        else if(code == KeyCode.UP){
+            if(Lives.myLives.size()!=0){
+                ImageView bouncer = Balls.addBouncer();
+                root.getChildren().add(bouncer);
+                removeText(pressUpText);
+            }
         }
     }
 
@@ -232,8 +281,6 @@ public class Main extends Application {
         }
     }
 
-
-
 }
     public void checkPowerUpCollisons(){
         ArrayList<ImageView> powerUps= PowerUps.getPowerUps();
@@ -248,7 +295,6 @@ public class Main extends Application {
                 }
                 if(powerUpType.equals("extraballpower.gif")){
                     root.getChildren().add(Balls.addBouncer());
-                    Balls.addBouncerInfo();
                     powerUps.get(i).setY(900);
                 }
                 if(powerUpType.equals("sizepower.gif")){
@@ -268,6 +314,7 @@ public class Main extends Application {
             }
         }
     }
+
    public static void moveBouncers(double elapsedTime){
         ArrayList<ImageView> bouncers = Balls.getBouncers();
         ArrayList<int[]> bouncerInfo = Balls.getBouncerInfo();
@@ -278,13 +325,20 @@ public class Main extends Application {
                 int[] thisBouncerInfo = bouncerInfo.get(i);
                 thisBouncerInfo[0] *= -1;
             }
-            if (bouncers.get(i).getY() >= (SIZE/2) || bouncers.get(i).getY() <= 0) {
+            if (bouncers.get(i).getY() <= 0) {
                 int[] thisBouncerInfo = bouncerInfo.get(i);
                 thisBouncerInfo[1] *= -1;
             }
+            if(bouncers.get(i).getY() >= (SIZE/2)){
+               root.getChildren().remove(bouncers.get(i));
+               Balls.removeBouncer(bouncers.get(i));
+               if(Balls.getBouncers().size() == 0){
+                   ImageView life =  Lives.removeLife();
+                   root.getChildren().remove(life);
+               }
+            }
         }
    }
-
 
    public static int getHitCount(){
       return PaddleHitCount;
@@ -292,13 +346,11 @@ public class Main extends Application {
    public static void setHitCount(int count){
         PaddleHitCount = count;
    }
-
    public void changeToOriginalPaddleSize(){
         if(!PowerUps.getPaddleExpansionOn()){
             myPaddle.setWidth(GROWER_WIDTH);
         }
    }
-
    public void addText(){
        myTitle = new Text();
        myPoints = new Text();
@@ -309,7 +361,6 @@ public class Main extends Application {
        myTitle.setFill(Color.LIGHTCORAL);
        addPoints();
    }
-
    public void addPoints(){
         root.getChildren().remove(myPoints);
         myPoints.setText("Points:" + " " + myPointValue);
@@ -319,10 +370,10 @@ public class Main extends Application {
         myPoints.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
         root.getChildren().add(myPoints);
    }
-
-
-
-    public static void main (String[] args) {
+   public static double getPaddleX(){
+        return myPaddle.getX();
+   }
+   public static void main (String[] args) {
         launch(args);
     }
 }

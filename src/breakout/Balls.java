@@ -11,15 +11,21 @@ public class Balls {
 
     public static ImageView addBouncer(){
         ImageView bouncer = new ImageView(BOUNCER_IMAGE);
-        bouncer.setX(Main.SIZE/2 - bouncer.getBoundsInLocal().getWidth()/2);
-        bouncer.setY(Main.SIZE/2 - 70);
+        bouncer.setX(Main.getPaddleX() + Main.GROWER_WIDTH);
+        bouncer.setY(Main.SIZE/ 2 - 50);
         myBouncers.add(bouncer);
+        addBouncerInfo();
         return bouncer;
     }
 
     public static void addBouncerInfo(){
         int[] info = {1,1};
         myBouncerInfo.add(info);
+    }
+
+    public static void removeBouncer(ImageView bouncer){
+        myBouncers.remove(bouncer);
+        myBouncerInfo.remove(bouncer);
     }
     public static ArrayList<ImageView> getBouncers(){
         return myBouncers;
