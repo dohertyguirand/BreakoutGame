@@ -5,9 +5,11 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -16,6 +18,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.text.Text;
+import javafx.scene.image.Image;
 
 import java.awt.*;
 import java.security.Key;
@@ -35,10 +38,10 @@ public class Main extends Application {
     public static final Paint HIGHLIGHT = Color.OLIVEDRAB;
     public static final int BOUNCER_SPEED = 150;
     public static final int PADDLE_SPEED = 60;
+    public static final int PADDLE_WIDTH = 100;
+    private static final int PADDLE_HEIGHT = 20;
     public static final Paint GROWER_COLOR = Color.AQUAMARINE;
     public static final double GROWER_RATE = 1.1;
-    public static final int GROWER_WIDTH = 100;
-    public static final int GROWER_HEIGHT = 12;
     private static final int myLevelCount = 0;
     private static final int myPowerUpFallSpeed =150;
     private static Group root = new Group();
@@ -50,7 +53,10 @@ public class Main extends Application {
     private static boolean moveBall = false;
     public static final double PaddleY = SIZE/2 - 50;
     private static int consecutiveBricksHits = 0;
-
+    private static boolean LOST = false;
+    private static boolean INGAME = false;
+    public static ArrayList<Text> myBallText = new ArrayList<>();
+    private static Rectangle mySplashScreen;
 
 
     private static Rectangle myPaddle;
@@ -58,7 +64,7 @@ public class Main extends Application {
     private Text myPoints;
     private int myPointValue;
     private static int BOMB_Direction = 1;
-
+    public static final Paint PADDLE_COLOR = Color.AQUAMARINE;
 
 
     /**
@@ -80,80 +86,80 @@ public class Main extends Application {
         animation.play();
     }
 
-//    private void setSplashScreen(){
-//        Text welcomeStatement = new Text("Welcome to Brick Breaker ");
-//        welcomeStatement.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
-//        welcomeStatement.setX(SIZE/2 - welcomeStatement.getBoundsInLocal().getWidth()/2);
-//        welcomeStatement.setY(25);
-//        root.getChildren().add(welcomeStatement);
-//        Text pressEnter = new Text("Press UP to continue");
-//
-//        pressEnter.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 30));
-//        pressEnter.setX((SIZE/2 - pressEnter.getBoundsInLocal().getWidth()/2));
-//        pressEnter.setY(30 + welcomeStatement.getBoundsInLocal().getHeight());
-//        root.getChildren().add(pressEnter);
-//        splashScreenText.add(welcomeStatement);
-//        splashScreenText.add(pressEnter);
-//    }
+
 
     // Create the game's "scene": what shapes will be in the game and their starting properties
     private Scene setupGame () {
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
-            if(myLevelCount == 0){
-                Brick.makeLevelOneBricks();
-                PowerUps.makeLevelOnePowerUps();
-                Lives.resetLives();
+        mySplashScreen = new Rectangle(0,0, SIZE, SIZE/2);
+        mySplashScreen.setFill(Color.BLACK);
+        myPaddle = new Rectangle(Main.SIZE/2, PaddleY,PADDLE_WIDTH, PADDLE_HEIGHT);
+        //Image image = new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif"));
+        //ImagePattern paddleImage   = new ImagePattern(image);
+        myPaddle.setFill(Color.AQUAMARINE);
+        if(myLevelCount == 0){
+            Brick.makeLevelOneBricks();
+            PowerUps.makeLevelOnePowerUps();
+            Lives.resetLives();
             }
-            myPaddle = new Rectangle(SIZE / 2, PaddleY, GROWER_WIDTH, GROWER_HEIGHT);
-            myPaddle.setFill(GROWER_COLOR);
             // order added to the group is the order in which they are drawn
-            Balls.addBouncer();
-            addPerminateText();
-            addChildren();
-            addBallText();
-            // respond to input
-            scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
-            scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
+        Balls.addBouncer();
+        addPerminateText();
+        addBallText();
+        Texts.setSplashScreenText();
+        addChildren();
 
+            // respond to input
+        scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
+        scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
         return scene;
     }
 
+
+
     private void addChildren(){
-        root.getChildren().add(myPaddle);
-        root.getChildren().add(myTitle);
-        root.getChildren().addAll(PowerUps.getPowerUps());
-        root.getChildren().addAll(Brick.getBricks());
-        root.getChildren().addAll(Balls.getBouncers());
-        root.getChildren().addAll(Lives.getLives());
+            root.getChildren().add(myPaddle);
+            root.getChildren().add(myTitle);
+            root.getChildren().addAll(PowerUps.getPowerUps());
+            root.getChildren().addAll(Brick.getBricks());
+            root.getChildren().addAll(Balls.getBouncers());
+            root.getChildren().addAll(Lives.getLives());
+            root.getChildren().addAll(myBallText);
+            root.getChildren().add(mySplashScreen);
+            root.getChildren().addAll(Texts.getMySplashScreenText());
     }
 
     private void step (double elapsedTime) {
         // update "actors" attributes
-        checkCollisons();
-        checkPowerUpCollisons();
-        checkLives();
-        moveBouncers(elapsedTime);
-        PowerUps.managePaddleLengthPowerUp();
-        changeToOriginalPaddleSize();
-        if (myPaddle.getX() <= - myPaddle.getWidth()){
-            myPaddle.setX(SIZE-myPaddle.getWidth());
-        }
-        if(myPaddle.getX()>= SIZE){
-            myPaddle.setX(0);
-        }
-        if(BrickBombOn){
-            ArrayList<ImageView> bombs = PowerUps.getBombs();
-            for(ImageView bomb: bombs){
-                bomb.setY(bomb.getY() + BOMB_Direction * myPowerUpFallSpeed * elapsedTime);
+        if(!LOST){
+            checkCollisons();
+            checkPowerUpCollisons();
+            checkLives();
+            moveBouncers(elapsedTime);
+            PowerUps.managePaddleLengthPowerUp();
+            changeToOriginalPaddleSize();
+
+            if(myPaddle.getX() < -(myPaddle.getWidth())){
+                myPaddle.setX(SIZE - myPaddle.getWidth());
+            }
+            if(myPaddle.getX()> SIZE){
+                myPaddle.setX(0);
+            }
+            if(BrickBombOn){
+                ArrayList<ImageView> bombs = PowerUps.getBombs();
+                for(ImageView bomb: bombs){
+                    bomb.setY(bomb.getY() + BOMB_Direction * myPowerUpFallSpeed * elapsedTime);
+                }
+            }
+            ArrayList<ImageView> powerups = PowerUps.getPowerUps();
+            ArrayList<String[]> powerupinfo = PowerUps.getPowerUpTypes();
+            for(int i = 0; i < powerups.size(); i ++){
+                if(powerupinfo.get(i)[1].equals("true")){
+                    powerups.get(i).setY(powerups.get(i).getY() + myPowerUpFallSpeed * elapsedTime);
+                }
             }
         }
-        ArrayList<ImageView> powerups = PowerUps.getPowerUps();
-        ArrayList<String[]> powerupinfo = PowerUps.getPowerUpTypes();
-        for(int i = 0; i < powerups.size(); i ++){
-           if(powerupinfo.get(i)[1].equals("true")){
-               powerups.get(i).setY(powerups.get(i).getY() + myPowerUpFallSpeed * elapsedTime);
-           }
-        }
+
     }
 
     public static void checkLives(){
@@ -161,6 +167,7 @@ public class Main extends Application {
         if(numLives == 0){
             Lives.setyouLoseText();
             root.getChildren().addAll(Lives.getYouLoseText());
+            LOST = true;
         }
         if(numLives != 0 && Balls.getBouncers().size() == 0){
             ImageView bouncer = Balls.addBouncer();
@@ -184,8 +191,8 @@ public class Main extends Application {
         pressUp.setY(SIZE/4);
         numLifeCount.setX(SIZE/2 - numLifeCount.getBoundsInLocal().getWidth()/2);
         numLifeCount.setY(SIZE/4 + MARGIN + pressUp.getBoundsInLocal().getHeight());
-        root.getChildren().add(pressUp);
-        root.getChildren().add(numLifeCount);
+        myBallText.add(pressUp);
+        myBallText.add(numLifeCount);
     }
 
     public static void removeText(ArrayList<Text> text){
@@ -197,30 +204,39 @@ public class Main extends Application {
 
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
-        if (code == KeyCode.RIGHT) {
-            if(moveBall){
-                leftCount = 0;
-                rightCount+= .5;
-                myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
+        if(INGAME){
+            if (code == KeyCode.RIGHT) {
+                if(moveBall){
+                    leftCount = 0;
+                    rightCount+= .5;
+                    myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
+                }
+            }
+            else if (code == KeyCode.LEFT) {
+                if(moveBall){
+                    rightCount=0;
+                    leftCount+=.5;
+                    myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
+                }
+            }
+            else if(code == KeyCode.UP){
+                if(Lives.myLives.size()!=0){
+                    removeText(pressUpText);
+                    moveBall = true;
+                }
             }
         }
-        else if (code == KeyCode.LEFT) {
-            if(moveBall){
-                rightCount=0;
-                leftCount+=.5;
-                myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
+        if(!INGAME){
+            if(code == KeyCode.UP){
+                root.getChildren().remove(mySplashScreen);
+            }
+
+            if(code == KeyCode.DOWN){
+
+                INGAME = true;
             }
         }
-        else if(code == KeyCode.UP){
-            if(Lives.myLives.size()!=0){
-                removeText(pressUpText);
-                moveBall = true;
-            }
-        }
-        else if(code == KeyCode.DOWN){
-            root = new Group();
-            setupGame();
-        }
+
     }
 
     private void handleMouseInput (double x, double y) {
@@ -234,7 +250,12 @@ public class Main extends Application {
         ArrayList<ImageView> bouncers = Balls.getBouncers();
         ArrayList<int[]> bouncerinfo = Balls.getBouncerInfo();
         for(int k = 0; k < bouncers.size(); k ++){
-            if (myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
+            if (myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
+                double ballCollisonLoc = bouncers.get(k).getX();
+                double paddleCollisonLoc = myPaddle.getX();
+                if(ballCollisonLoc - paddleCollisonLoc < PADDLE_WIDTH/4 || ballCollisonLoc - paddleCollisonLoc > 3 * PADDLE_WIDTH/4){
+                    bouncerinfo.get(k)[0] *= -1;
+                }
                 bouncerinfo.get(k)[1] *= -1;
                 myPaddle.setFill(HIGHLIGHT);
                 if(PowerUps.getPaddleExpansionOn()){
@@ -334,8 +355,8 @@ public class Main extends Application {
                 bouncers.get(i).setY(bouncers.get(i).getY() + BOUNCER_SPEED * bouncerInfo.get(i)[1] * elapsedTime * 1.5);
             }
             if(!moveBall){
-                bouncers.get(i).setX(myPaddle.getX() + GROWER_WIDTH/2);
-                bouncers.get(i).setY(myPaddle.getY()- GROWER_HEIGHT - MARGIN);
+                bouncers.get(i).setX(myPaddle.getX() + PADDLE_WIDTH/2);
+                bouncers.get(i).setY(myPaddle.getY()- PADDLE_HEIGHT - MARGIN);
             }
             if (bouncers.get(i).getX() >= (SIZE - 14) || bouncers.get(i).getX() < 0) {
                 int[] thisBouncerInfo = bouncerInfo.get(i);
@@ -366,7 +387,7 @@ public class Main extends Application {
 
    public void changeToOriginalPaddleSize(){
         if(!PowerUps.getPaddleExpansionOn()){
-            myPaddle.setWidth(GROWER_WIDTH);
+            myPaddle.setWidth(PADDLE_WIDTH);
         }
    }
 
