@@ -42,7 +42,7 @@ public class PowerUps {
             myPowerUpTypes.add(dummy);
         }
     }
-
+//
 
     public static void managePaddleLengthPowerUp(){
         if(paddleExpanderOn){

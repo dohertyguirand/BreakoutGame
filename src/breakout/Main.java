@@ -34,8 +34,7 @@ public class Main extends Application {
     public static final Paint BACKGROUND = Color.BLACK;
     public static final Paint HIGHLIGHT = Color.OLIVEDRAB;
     public static final int BOUNCER_SPEED = 150;
-    public static final int PADDLE_SPEED = 30;
-    public static int PADDLE_MOVE;
+    public static final int PADDLE_SPEED = 60;
     public static final Paint GROWER_COLOR = Color.AQUAMARINE;
     public static final double GROWER_RATE = 1.1;
     public static final int GROWER_WIDTH = 100;
@@ -48,6 +47,9 @@ public class Main extends Application {
     private static int rightCount = 0;
     private static int leftCount = 0;
     private static ArrayList<Text> pressUpText  = new ArrayList<>();
+    private static boolean moveBall = false;
+    public static final double PaddleY = SIZE/2 - 50;
+    private static int consecutiveBricksHits = 0;
 
 
 
@@ -102,12 +104,13 @@ public class Main extends Application {
                 PowerUps.makeLevelOnePowerUps();
                 Lives.resetLives();
             }
-            myPaddle = new Rectangle(SIZE / 2, SIZE/ 2 - 50, GROWER_WIDTH, GROWER_HEIGHT);
+            myPaddle = new Rectangle(SIZE / 2, PaddleY, GROWER_WIDTH, GROWER_HEIGHT);
             myPaddle.setFill(GROWER_COLOR);
-            Balls.addBouncer();
             // order added to the group is the order in which they are drawn
-            addText();
+            Balls.addBouncer();
+            addPerminateText();
             addChildren();
+            addBallText();
             // respond to input
             scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
             scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
@@ -156,21 +159,20 @@ public class Main extends Application {
     public static void checkLives(){
         int numLives = Lives.getLifeCount();
         if(numLives == 0){
-            Text youLose = new Text("You Lose");
-            youLose.setX(SIZE/2);
-            youLose.setY(SIZE/4);
-            youLose.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
-            youLose.setFill(Color.RED);
-            root.getChildren().add(youLose);
+            Lives.setyouLoseText();
+            root.getChildren().addAll(Lives.getYouLoseText());
         }
         if(numLives != 0 && Balls.getBouncers().size() == 0){
+            ImageView bouncer = Balls.addBouncer();
+            root.getChildren().add(bouncer);
+            setMoveBallOff();
             addBallText();
         }
     }
 
     public static void addBallText(){
         int numLives = Lives.getLives().size();
-        Text pressUp = new Text("Press up to continue");
+        Text pressUp = new Text("Press UP to begin");
         Text numLifeCount = new Text("Number of Lives:" + " " + numLives);
         pressUpText.add(pressUp);
         pressUpText.add(numLifeCount);
@@ -196,21 +198,28 @@ public class Main extends Application {
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
         if (code == KeyCode.RIGHT) {
-            leftCount = 0;
-            rightCount+= .5;
-            myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
+            if(moveBall){
+                leftCount = 0;
+                rightCount+= .5;
+                myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
+            }
         }
         else if (code == KeyCode.LEFT) {
-            rightCount=0;
-            leftCount+=.5;
-            myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
+            if(moveBall){
+                rightCount=0;
+                leftCount+=.5;
+                myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
+            }
         }
         else if(code == KeyCode.UP){
             if(Lives.myLives.size()!=0){
-                ImageView bouncer = Balls.addBouncer();
-                root.getChildren().add(bouncer);
                 removeText(pressUpText);
+                moveBall = true;
             }
+        }
+        else if(code == KeyCode.DOWN){
+            root = new Group();
+            setupGame();
         }
     }
 
@@ -227,13 +236,13 @@ public class Main extends Application {
         for(int k = 0; k < bouncers.size(); k ++){
             if (myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
                 bouncerinfo.get(k)[1] *= -1;
-            }
-            if (myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
                 myPaddle.setFill(HIGHLIGHT);
                 if(PowerUps.getPaddleExpansionOn()){
                     PaddleHitCount++;
                 }
+                consecutiveBricksHits = 0;
             }
+
             else {
                 myPaddle.setFill(GROWER_COLOR);
             }
@@ -265,6 +274,7 @@ public class Main extends Application {
             }
                 if(brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
                 bouncerinfo.get(k)[1] *= -1;
+                consecutiveBricksHits++;
                 ArrayList<ImageView> powerups =  PowerUps.getPowerUps();
                     for(int i = 0; i < powerups.size(); i++ ){
                         if(powerups.get(i).getBoundsInParent().intersects((brick.getBoundsInParent()))){
@@ -273,7 +283,7 @@ public class Main extends Application {
                     }
                 }
                 root.getChildren().remove(brick);
-                myPointValue += 100;
+                myPointValue += 100 * (1 + (consecutiveBricksHits * 0.5));
                 addPoints();
                 Brick.removeBrick(brick);
                 break;
@@ -319,8 +329,14 @@ public class Main extends Application {
         ArrayList<ImageView> bouncers = Balls.getBouncers();
         ArrayList<int[]> bouncerInfo = Balls.getBouncerInfo();
         for(int i = 0; i < bouncers.size(); i++){
-            bouncers.get(i).setX(bouncers.get(i).getX() + BOUNCER_SPEED * bouncerInfo.get(i)[0] * elapsedTime);
-            bouncers.get(i).setY(bouncers.get(i).getY() + BOUNCER_SPEED * bouncerInfo.get(i)[1] * elapsedTime * 1.5);
+            if(moveBall){
+                bouncers.get(i).setX(bouncers.get(i).getX() + BOUNCER_SPEED * bouncerInfo.get(i)[0] * elapsedTime);
+                bouncers.get(i).setY(bouncers.get(i).getY() + BOUNCER_SPEED * bouncerInfo.get(i)[1] * elapsedTime * 1.5);
+            }
+            if(!moveBall){
+                bouncers.get(i).setX(myPaddle.getX() + GROWER_WIDTH/2);
+                bouncers.get(i).setY(myPaddle.getY()- GROWER_HEIGHT - MARGIN);
+            }
             if (bouncers.get(i).getX() >= (SIZE - 14) || bouncers.get(i).getX() < 0) {
                 int[] thisBouncerInfo = bouncerInfo.get(i);
                 thisBouncerInfo[0] *= -1;
@@ -343,15 +359,18 @@ public class Main extends Application {
    public static int getHitCount(){
       return PaddleHitCount;
    }
+
    public static void setHitCount(int count){
         PaddleHitCount = count;
    }
+
    public void changeToOriginalPaddleSize(){
         if(!PowerUps.getPaddleExpansionOn()){
             myPaddle.setWidth(GROWER_WIDTH);
         }
    }
-   public void addText(){
+
+   public void addPerminateText(){
        myTitle = new Text();
        myPoints = new Text();
        myTitle.setText("Brick Breaker");
@@ -361,6 +380,7 @@ public class Main extends Application {
        myTitle.setFill(Color.LIGHTCORAL);
        addPoints();
    }
+
    public void addPoints(){
         root.getChildren().remove(myPoints);
         myPoints.setText("Points:" + " " + myPointValue);
@@ -370,9 +390,14 @@ public class Main extends Application {
         myPoints.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
         root.getChildren().add(myPoints);
    }
+
    public static double getPaddleX(){
         return myPaddle.getX();
    }
+   public static void setMoveBallON(){
+        moveBall = true;
+   }
+   public static void setMoveBallOff(){moveBall = false;}
    public static void main (String[] args) {
         launch(args);
     }
