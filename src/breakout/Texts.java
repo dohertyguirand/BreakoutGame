@@ -28,7 +28,7 @@ public class Texts {
     public static final ImageView paddlescreen = new ImageView("paddlescreen.gif");
     public static final ImageView pointsscreen = new ImageView("pointsscreen.gif");
 
-    public static void setMyForeverText(){
+    public static void setMyForeverText(){  // adds a title and points to screen sets points to 0
         myTitle = new Text();
         myTitle.setText("Brick Breaker");
         myTitle.setY(Main.SIZE/2 -10);
@@ -39,7 +39,7 @@ public class Texts {
         updateMyPointsText(0);
     }
 
-    public static void updateMyPointsText(int myPointValue){
+    public static void updateMyPointsText(int myPointValue){ //used whenever a brick is broken and at initialization of game
         Main.removeNodeFromRoot(myPointsText);
         myPointsText = new Text();
         myPointsText.setText("Points:" + " " + myPointValue);
@@ -51,14 +51,14 @@ public class Texts {
     }
 
 
-    public static List<Node> getResetBallText(){
+    public static List<Node> getResetBallText(){ //used whenever the player loses a life / starts a new level
         if(myresetBallText == null){
             setResetBallText();
         }
         return myresetBallText;
     }
 
-    public static List<Node> getMySplashScreenText(){
+    public static List<Node> getMySplashScreenText(){ //only used at the beginning of the game
         mySplashScreenText = new ArrayList<>();
         mySplashScreenText.add(pointsscreen);
         mySplashScreenText.add(paddlescreen);
@@ -66,7 +66,7 @@ public class Texts {
         mySplashScreenText.add(welcomescreen);
         return mySplashScreenText;
     }
-    public static List<Node> getYouLoseText(){
+    public static List<Node> getYouLoseText(){ //used when num lives == 0
         if(youLoseText == null){
             setYouLoseText();
         }

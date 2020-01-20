@@ -54,7 +54,8 @@ public class Main extends Application {
 
 
     /**
-     * Initialize what will be displayed and how it will be updated.
+     * this class controls the game
+     * also contains all of the paddle infomation
      */
     @Override
     public void start (Stage stage) {
@@ -92,7 +93,7 @@ public class Main extends Application {
             warpPaddle();
         }
     }
-    public void addPaddle(){
+    public void addPaddle(){ //adds paddle to very start of game
         myPaddle = new javafx.scene.shape.Rectangle(Main.SIZE/2, Main.PaddleY,PADDLE_WIDTH, PADDLE_HEIGHT);
         ImagePattern paddleImage   = new ImagePattern(new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif")));
         myPaddle.setFill(paddleImage);
@@ -105,22 +106,22 @@ public class Main extends Application {
         if(myPaddle.getX()> SIZE){
             myPaddle.setX(0);
         }
-    }
-    public static int getHitCount(){
+    } // allows paddle to warp across screen
+    public static int getHitCount(){ //used with paddle expander powerup
         return PaddleHitCount;
     }
-    public static void setHitCount(int count){
+    public static void setHitCount(int count){ //used with paddle expander powerup
         PaddleHitCount = count;
     }
-    public static void expandPaddle(){
+    public static void expandPaddle(){ //used with paddle expander powerup
         myPaddle.setWidth(myPaddle.getWidth() * 1.5);
     }
     public static void changeToOriginalPaddleSize(){
         if(!PowerUps.getPaddleExpansionOn()){
             myPaddle.setWidth(PADDLE_WIDTH);
         }
-    }
-    public static void updatePaddleHitCount(){
+    } //used with paddle expander powerup
+    public static void updatePaddleHitCount(){ //used with paddle expander powerup
         if(PowerUps.getPaddleExpansionOn()){
             PaddleHitCount++;
         }
@@ -139,14 +140,10 @@ public class Main extends Application {
         removeCollectionFromRoot(Texts.getYouLoseText());
     }
 
-    public static int updateLevelCount(){
-        myLevelCount++;
-        return myLevelCount;
-    }
     public static void turnLOSTON(){  //used when numlives == 0
         LOST = true;
     }
-    public static void turnLOSTOFF(){
+    public static void turnLOSTOFF(){ //used with cheat key
         LOST = false;
     }
 
@@ -213,26 +210,26 @@ public class Main extends Application {
             }
         }
     }
-    public static void removeNodeFromRoot(Node node){
+    public static void removeNodeFromRoot(Node node){ //removes a node from the screen
         root.getChildren().remove(node);
     }
-    public static void removeCollectionFromRoot(Collection<Node> collection){
+    public static void removeCollectionFromRoot(Collection<Node> collection){ //removes a collection from the screen
         root.getChildren().removeAll(collection);
     }
 
 
-    public static void addNodeToRoot(Node node){
+    public static void addNodeToRoot(Node node){ //adds a node to the screen
         root.getChildren().add(node);
     }
 
-   public static void addCollectionToRoot(Collection <Node> collection){
+   public static void addCollectionToRoot(Collection <Node> collection){ // adds a collection to the screen
         root.getChildren().addAll(collection);
     }
    public static double getPaddleX(){ //getPaddleX() and gerPaddleY() are used to set ball to
                                         // paddle location when new ball is added
         return myPaddle.getX();
    }
-   public static double getPaddleY() {return myPaddle.getY();}
+   public static double getPaddleY() {return myPaddle.getY();} //used to set new ball to paddle location
 
    public static void main (String[] args) {
         launch(args);

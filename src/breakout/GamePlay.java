@@ -8,8 +8,9 @@ import java.util.List;
 public class GamePlay {
     public static boolean moveBall = false;
 
+// this class handles gameplay
 
-    public static void everyStep(){
+    public static void everyStep(){ //this is done at every instance of the game
         checkIfNoBricks();
         checkLives();
         moveBouncers(Main.SECOND_DELAY);
@@ -19,17 +20,18 @@ public class GamePlay {
         checkPowerUpCollisons();
         PowerUps.moveTruePowerUps();
     }
-    public static void turnMOVEBALLOFF(){
+    public static void turnMOVEBALLOFF(){ //boolean moveBall is used to differentiate when the move the ball or not
         moveBall = false;
     }
     public static void turnMOVEBALLOON(){
         moveBall = true;
     }
 
-    private static void checkIfNoBricks() {
+    private static void checkIfNoBricks() {  //checks if player has cleared the current level's brick takes player to new level
         if(Levels.getBricks().size() == 0){
             Levels.changeCurrentLevel(Levels.getCurrentLevel() +1);
             if(Levels.getCurrentLevel() == 3){
+                //Player wins
             }
             Levels.startNextLevel();
         }
@@ -148,7 +150,6 @@ public class GamePlay {
                 thisBouncerInfo[1] *= -1;
             }
             if(bouncer.getY() >= (Main.SIZE/2)){
-                Main.removeNodeFromRoot(bouncer);
                 Balls.removeBouncer(bouncer);
                 if(Balls.getBouncers().size() == 0){
                     Node life =  Lives.removeLife();

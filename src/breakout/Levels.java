@@ -10,6 +10,8 @@ import java.util.List;
 
 public class Levels {
     public static int myCurrentLevel = 1;
+
+
     private static final int BRICKWIDTH = 70;
     private static final int BRICKHEIGHT = 20;
     private static final int NUMROWS = 8;
@@ -33,7 +35,7 @@ public class Levels {
     private static final int numTimesToHitMultipltHitBrick = 3;
 
 
-    public static void makeBricks(int levelNum){
+    public static void makeBricks(int levelNum){  // adds bricks to myBricks and myBrickTypes
         if(getBrickXLocations(levelNum) == null || getBrickXLocations(levelNum).size()==0){
             if(levelNum == 1) setLevelOneBrickLocations();
             if(levelNum == 2) setLevelTwoBrickLocations();
@@ -71,19 +73,9 @@ public class Levels {
     public static String getMultipleBricks(){
         return multipleBricks;
     }
-    public static String getPerminanteBricks(){
-        return perminanteBricks;
-    }
-
-    public static String[] getLevelBrickTypes(int levelNum){
-        if(levelNum == 1) return LEVELONEBRICKTYPES;
-        if(levelNum == 2) return LEVELTWOBRICKTYPES;
-        if(levelNum == 3) return LEVELTHREEBRICKTYPES;
-        return new String[]{"",""};
-    }
 
 
-    public static void startNextLevel(){
+    public static void startNextLevel(){ //used whenever starting a new level
             clearBricks();
             PowerUps.clearPowerUps();
             Main.removeCollectionFromRoot(Balls.getBouncers());
@@ -99,7 +91,7 @@ public class Levels {
             Main.addCollectionToRoot(Lives.getLives());
     }
 
-    public static List<Node> addBricksPowerUp(){ //adds 20 new bricks
+    public static List<Node> addBricksPowerUp(){ //adds 20 new bricks used with powerup
         List<Node> ret = new ArrayList<>();
         double[] brickXLocations = new double[NUMCOLS];
         double[] brickYLocations = new double[2];
@@ -122,34 +114,36 @@ public class Levels {
         return ret;
     }
 
-    public static List<Node> getBricks(){
+    public static List<Node> getBricks(){  // returns all of the bricks the break
         return myBricks;
     }
-    public static List<String>  getBouncerTypes(){
-        return myBrickTypes;
-    }
-    public static void removeBrick(Node brick){
+
+    public static void removeBrick(Node brick){  // removes one singular brick from main root and from lists
         int index = myBricks.indexOf(brick);
         myBricks.remove(brick);
         myBrickTypes.remove(index);
         Main.removeNodeFromRoot(brick);
     }
-    public static void changeCurrentLevel(int level){
+    public static void changeCurrentLevel(int level){  //changes level to level number used with cheat key
         myCurrentLevel = level;
     }
-    public static void clearBricks(){
+    public static void clearBricks(){  // clears all of the bricks in both the main root and their respective lists
         Main.removeCollectionFromRoot(myBricks);
         Main.removeCollectionFromRoot(myPerminateBricks);
         myBrickTypes.clear();
         myBricks.clear();
         myPerminateBricks.clear();
     }
-    public static List<Node> getMyPerminateBricks(){
+    public static List<Node> getMyPerminateBricks(){  // returns a list of perminatebricks
         return myPerminateBricks;
     }
-    public static int getCurrentLevel(){
+    public static int getCurrentLevel(){  // returns the current level number used to update level when using cheat key and when passed previous level
         return myCurrentLevel;
     }
+
+
+
+
 
     private static List<Double> getBrickXLocations(int levelNum){
         if(levelNum == 1){
