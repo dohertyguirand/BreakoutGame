@@ -42,12 +42,13 @@ public class Levels {
             if(levelNum ==3) setLevelThreeBrickLocations();
         }
         for (int i =0; i < getBrickXLocations(levelNum).size(); i ++) {
-            String bricktype = BRICKTYPES[i%3];
+            for(int k = 0; k< getBrickYLocations(levelNum).size(); k++){
+                String bricktype = BRICKTYPES[i%3];
                 if(bricktype.equals(Levels.getMultipleBricks())){
-                    for(int k = 0; k < numTimesToHitMultipltHitBrick; k ++){
+                    for(int j = 0; j < numTimesToHitMultipltHitBrick; j ++){
                         ImageView brick = new ImageView(bricktype);
-                        brick.setX(getBrickYLocations(levelNum).get(i));
-                        brick.setY(getBrickYLocations(levelNum).get(i));
+                        brick.setX(getBrickXLocations(levelNum).get(i));
+                        brick.setY(getBrickYLocations(levelNum).get(k));
                         myBricks.add(brick);
                         myBrickTypes.add(bricktype);
                     }
@@ -55,14 +56,16 @@ public class Levels {
                 else{
                     ImageView brick = new ImageView(bricktype);
                     brick.setX(getBrickXLocations(levelNum).get(i));
-                    brick.setY(getBrickYLocations(levelNum).get(i));
+                    brick.setY(getBrickYLocations(levelNum).get(k));
                     if(!bricktype.equals(perminanteBricks)){
                         myBricks.add(brick);
                         myBrickTypes.add(bricktype);
                     }
                     else{
-                       myPerminateBricks.add(brick);
+                        myPerminateBricks.add(brick);
                     }
+            }
+
                 }
         }
     }
@@ -195,10 +198,9 @@ public class Levels {
         LevelOneBrickYLocations = new ArrayList();
         LevelOneBrickXLocations = new ArrayList();
         for(int i = 0; i < NUMCOLS; i ++) {
-            for(int k = 0; k < NUMROWS; k++){
-                LevelOneBrickXLocations.add((double)i * BRICKWIDTH);
-                LevelOneBrickYLocations.add((double)BRICKHEIGHT * k);
-            }
+            LevelOneBrickXLocations.add((double) i * BRICKWIDTH);
+            if(i < NUMROWS)
+                LevelOneBrickYLocations.add((double)BRICKHEIGHT * i);
         }
     }
 
