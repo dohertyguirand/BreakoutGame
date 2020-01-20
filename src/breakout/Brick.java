@@ -4,9 +4,11 @@ package breakout;
 import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
+import javafx.scene.Node;
+import java.util.List;
 
 public class Brick {
-    private static ArrayList<ImageView> myBricks = new ArrayList<>();
+    private static List<Node> myBricks = new ArrayList<>();
     private static final String metalBrickImage = "brick3.gif";
     private static final String woodBrickImage = "brick5.gif";
     private static final String[] Brick_Images = {"brick1.gif", "brick1.gif", "brick2.gif", "brick2.gif", "brick4.gif", "brick4.gif", "brick5.gif", "brick5.gif"};
@@ -14,9 +16,11 @@ public class Brick {
     private static final int BRICKHEIGHT = 20;
     private static final int NUMROWS = 8;
     private static final int NUMCOLS = 10;
+    public static int myLevelNum = 0;
 
 
     public static void makeLevelOneBricks(){
+        myBricks = new ArrayList<>();
         double[] brickXLocations = new double[NUMCOLS];
         double[] brickYLocations = new double[NUMROWS];
         for(int i = 0; i < NUMCOLS; i ++) {
@@ -35,8 +39,9 @@ public class Brick {
         }
     }
 
-    public static ArrayList<ImageView> addBricksPowerUp(){ //adds 20 new bricks
-        ArrayList<ImageView> ret = new ArrayList<>();
+
+    public static List<Node> addBricksPowerUp(){ //adds 20 new bricks
+        List<Node> ret = new ArrayList<>();
         double[] brickXLocations = new double[NUMCOLS];
         double[] brickYLocations = new double[2];
         for(int i = 0; i < NUMCOLS; i ++){
@@ -57,10 +62,10 @@ public class Brick {
         return ret;
     }
 
-    public static ArrayList<ImageView> getBricks(){
+    public static List<Node> getBricks(){
         return myBricks;
     }
-    public static void removeBrick(ImageView brick){
+    public static void removeBrick(Node brick){
         myBricks.remove(brick);
     }
 

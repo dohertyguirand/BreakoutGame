@@ -1,35 +1,25 @@
 package breakout;
 
-import javax.swing.text.Element;
-
-import javafx.scene.image.Image;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
+
 
 public class PowerUps {
-    public static ArrayList<ImageView> myPowerUps;
-    public static ArrayList<String[]> myPowerUpTypes;
+    public static List<Node> myPowerUps;
+    public static List<String[]> myPowerUpTypes;
+    private static final int myPowerUpFallSpeed =150;
 
     private static String paddleExpanderImage = "laserpower.gif" ;
-    private static String brickBombImage = "pointspower.gif";
     private static String additionalBallsImage = "extraballpower.gif";
     private static String brickAdderImage = "sizepower.gif";
-    private static String[] myPowerUpImages = {paddleExpanderImage,additionalBallsImage,paddleExpanderImage,additionalBallsImage,brickAdderImage,paddleExpanderImage,additionalBallsImage};
+    private static String[] myPowerUpImages = {additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage};
     public static double[] powerUpXLocations = {0, 70, 140, 210, 280,350, 420};
     public static double[] powerUpYLocations = {140, 140, 140,140,140,140,140};
     public static boolean paddleExpanderOn = false;
     private static final int MAXHITCOUNT = 15;
-    public static ArrayList<ImageView> myBombs = new ArrayList<>();
-
-
-
-
-
+    
     public static void makeLevelOnePowerUps(){
         myPowerUps = new ArrayList<>();
         myPowerUpTypes = new ArrayList<>();
@@ -54,20 +44,25 @@ public class PowerUps {
         }
     }
 
-    public static void removeBombFromPowerUps(ImageView bomb){
-        myPowerUps.remove(bomb);
+    public static void moveTruePowerUps(){
+        for(int i = 0; i < myPowerUps.size(); i ++){
+            ImageView powerUp = (ImageView) myPowerUps.get(i);
+            if(myPowerUpTypes.get(i)[1].equals("true")){
+                powerUp.setY(powerUp.getY() + myPowerUpFallSpeed * Main.SECOND_DELAY);
+            }
+        }
     }
 
-    public static void addBomb(ImageView bomb){
-        myBombs.add(bomb);
+    public static void removePowerUp(Node powerUp){
+        int index = myPowerUps.indexOf(powerUp);
+        myPowerUps.remove(powerUp);
+        myPowerUpTypes.remove(index);
     }
 
-
-    public static ArrayList<ImageView> getBombs() {return myBombs; }
-    public static ArrayList<ImageView> getPowerUps(){
+    public static List<Node> getPowerUps(){
         return myPowerUps;
     }
-    public static ArrayList<String[]> getPowerUpTypes(){
+    public static List<String[]> getPowerUpTypes(){
         return myPowerUpTypes;
     }
     public static void setPaddleExpanderBooleanOn(){

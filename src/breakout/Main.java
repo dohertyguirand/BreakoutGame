@@ -4,27 +4,18 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.scene.text.Text;
-import javafx.scene.image.Image;
+import java.util.Collection;
 
-import java.awt.*;
-import java.security.Key;
-import java.security.Signature;
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 
 public class Main extends Application {
@@ -34,37 +25,30 @@ public class Main extends Application {
     public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
-    public static final Paint BACKGROUND = Color.BLACK;
-    public static final Paint HIGHLIGHT = Color.OLIVEDRAB;
     public static final int BOUNCER_SPEED = 150;
     public static final int PADDLE_SPEED = 60;
     public static final int PADDLE_WIDTH = 100;
-    private static final int PADDLE_HEIGHT = 20;
-    public static final Paint GROWER_COLOR = Color.AQUAMARINE;
-    public static final double GROWER_RATE = 1.1;
-    private static final int myLevelCount = 0;
-    private static final int myPowerUpFallSpeed =150;
+    public static final int PADDLE_HEIGHT = 20;
+    public static final double PaddleY = SIZE/2 - 50;
+
     private static Group root = new Group();
+
+    private static final Paint BACKGROUND = Color.BLACK;
+    private static int myLevelCount = 0;
     private static int PaddleHitCount = 0;
-    private boolean BrickBombOn = false;
     private static int rightCount = 0;
     private static int leftCount = 0;
-    private static ArrayList<Text> pressUpText  = new ArrayList<>();
-    private static boolean moveBall = false;
-    public static final double PaddleY = SIZE/2 - 50;
-    private static int consecutiveBricksHits = 0;
-    private static boolean LOST = false;
+
+
+
+    public static boolean LOST = false;
     private static boolean INGAME = false;
-    public static ArrayList<Text> myBallText = new ArrayList<>();
-    private static Rectangle mySplashScreen;
 
 
-    private static Rectangle myPaddle;
-    private Text myTitle;
-    private Text myPoints;
-    private int myPointValue;
-    private static int BOMB_Direction = 1;
-    public static final Paint PADDLE_COLOR = Color.AQUAMARINE;
+
+    public static Rectangle myPaddle;
+
+
 
 
     /**
@@ -87,130 +71,122 @@ public class Main extends Application {
     }
 
 
-
     // Create the game's "scene": what shapes will be in the game and their starting properties
     private Scene setupGame () {
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
-        myPaddle = new Rectangle(Main.SIZE/2, PaddleY,PADDLE_WIDTH, PADDLE_HEIGHT);
-        ImagePattern paddleImage   = new ImagePattern(new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif")));
-        myPaddle.setFill(paddleImage);
-        Texts.setSplashScreenText();
-        if(myLevelCount == 0){
-            Brick.makeLevelOneBricks();
-            PowerUps.makeLevelOnePowerUps();
-            Lives.resetLives();
-            }
-            // order added to the group is the order in which they are drawn
-        Balls.addBouncer();
-        addPerminateText();
-        addBallText();
-        addChildren();
-
+        addPaddle();
+        Levels.startNextLevel(myLevelCount);
+        Texts.setMyForeverText();
+        addBeginningOfGameOtherClasses();
             // respond to input
         scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
-        scene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
         return scene;
     }
 
 
 
-    private void addChildren(){
-            root.getChildren().add(myPaddle);
-            root.getChildren().add(myTitle);
-            root.getChildren().addAll(PowerUps.getPowerUps());
-            root.getChildren().addAll(Brick.getBricks());
-            root.getChildren().addAll(Balls.getBouncers());
-            root.getChildren().addAll(Lives.getLives());
-            root.getChildren().addAll(myBallText);
-            root.getChildren().addAll(Texts.getMySplashScreenText());
+    private void addBeginningOfGameOtherClasses(){
+            addCollectionToRoot(PowerUps.getPowerUps());
+            addCollectionToRoot(Brick.getBricks());
+            addCollectionToRoot(Balls.getBouncers());
+            addCollectionToRoot(Lives.getLives());
+            addCollectionToRoot(Texts.getResetBallText());
+            addCollectionToRoot(Texts.getMySplashScreenText());
     }
 
     private void step (double elapsedTime) {
         // update "actors" attributes
         if(!LOST){
-            checkCollisons();
-            checkPowerUpCollisons();
-            checkLives();
-            moveBouncers(elapsedTime);
-            PowerUps.managePaddleLengthPowerUp();
-            changeToOriginalPaddleSize();
-
-            if(myPaddle.getX() < -(myPaddle.getWidth())){
-                myPaddle.setX(SIZE - myPaddle.getWidth());
-            }
-            if(myPaddle.getX()> SIZE){
-                myPaddle.setX(0);
-            }
-            if(BrickBombOn){
-                ArrayList<ImageView> bombs = PowerUps.getBombs();
-                for(ImageView bomb: bombs){
-                    bomb.setY(bomb.getY() + BOMB_Direction * myPowerUpFallSpeed * elapsedTime);
-                }
-            }
-            ArrayList<ImageView> powerups = PowerUps.getPowerUps();
-            ArrayList<String[]> powerupinfo = PowerUps.getPowerUpTypes();
-            for(int i = 0; i < powerups.size(); i ++){
-                if(powerupinfo.get(i)[1].equals("true")){
-                    powerups.get(i).setY(powerups.get(i).getY() + myPowerUpFallSpeed * elapsedTime);
-                }
-            }
+            GamePlay.everyStep();
+            warpPaddle();
         }
-
     }
-
-    public static void checkLives(){
-        int numLives = Lives.getLifeCount();
-        if(numLives == 0){
-            Lives.setyouLoseText();
-            root.getChildren().addAll(Lives.getYouLoseText());
-            LOST = true;
+    public void addPaddle(){
+        myPaddle = new javafx.scene.shape.Rectangle(Main.SIZE/2, Main.PaddleY,PADDLE_WIDTH, PADDLE_HEIGHT);
+        ImagePattern paddleImage   = new ImagePattern(new Image(this.getClass().getClassLoader().getResourceAsStream("coustomPaddle.gif")));
+        myPaddle.setFill(paddleImage);
+        addNodeToRoot(myPaddle);
+    }
+    public static void warpPaddle(){
+        if(myPaddle.getX() < -(myPaddle.getWidth())){
+            myPaddle.setX(SIZE - myPaddle.getWidth());
         }
-        if(numLives != 0 && Balls.getBouncers().size() == 0){
-            ImageView bouncer = Balls.addBouncer();
-            root.getChildren().add(bouncer);
-            setMoveBallOff();
-            addBallText();
-            root.getChildren().addAll(pressUpText);
+        if(myPaddle.getX()> SIZE){
+            myPaddle.setX(0);
+        }
+    }
+    public static int getHitCount(){
+        return PaddleHitCount;
+    }
+    public static void setHitCount(int count){
+        PaddleHitCount = count;
+    }
+    public static void expandPaddle(){
+        myPaddle.setWidth(myPaddle.getWidth() * 1.5);
+    }
+    public static void changeToOriginalPaddleSize(){
+        if(!PowerUps.getPaddleExpansionOn()){
+            myPaddle.setWidth(PADDLE_WIDTH);
+        }
+    }
+    public static void updatePaddleHitCount(){
+        if(PowerUps.getPaddleExpansionOn()){
+            PaddleHitCount++;
         }
     }
 
-    public static void addBallText(){
-        int numLives = Lives.getLives().size();
-        Text pressUp = new Text("Press UP to start");
-        Text numLifeCount = new Text("Number of Lives:" + " " + numLives);
-        pressUp.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 25));
-        numLifeCount.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        pressUp.setFill(Color.WHITE);
-        numLifeCount.setFill(Color.LIGHTPINK);
-        pressUp.setX(SIZE/2 - pressUp.getBoundsInLocal().getWidth()/2);
-        pressUp.setY(SIZE/4);
-        numLifeCount.setX(SIZE/2 - numLifeCount.getBoundsInLocal().getWidth()/2);
-        numLifeCount.setY(SIZE/4 + MARGIN + pressUp.getBoundsInLocal().getHeight());
-        pressUpText.add(pressUp);
-        pressUpText.add(numLifeCount);
-        myBallText.add(pressUp);
-        myBallText.add(numLifeCount);
+    public void resetPaddleAndBall(){
+        turnLOSTOFF();
+        removeNodeFromRoot(myPaddle);
+        addPaddle();
+        removeCollectionFromRoot(Balls.getBouncers());
+        Balls.clearBalls();
+        GamePlay.turnMOVEBALLOFF();
+        Balls.addBouncer();
+        addCollectionToRoot(Texts.getResetBallText());
+        addCollectionToRoot(Balls.getBouncers());
+        removeCollectionFromRoot(Texts.getYouLoseText());
     }
 
-    public static void removeText(ArrayList<Text> text){
-        root.getChildren().removeAll(text);
+    public static int updateLevelCount(){
+        myLevelCount++;
+        return myLevelCount;
+    }
+    public static void turnLOSTON(){
+        LOST = true;
+    }
+    public static void turnLOSTOFF(){
+        LOST = false;
     }
 
+
+    public static void removeNodeFromRoot(Node node){
+        root.getChildren().remove(node);
+    }
+    public static void removeCollectionFromRoot(Collection<Node> collection){
+        root.getChildren().removeAll(collection);
+    }
 
 
 
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
         if(INGAME){
+            if(code == KeyCode.L){
+                Lives.addLife();
+            }
+            if(code == KeyCode.SPACE){
+               resetPaddleAndBall();
+            }
             if (code == KeyCode.RIGHT) {
-                if(moveBall){
+                if(GamePlay.moveBall){
                     leftCount = 0;
                     rightCount+= .5;
                     myPaddle.setX(myPaddle.getX() + (PADDLE_SPEED * (1+ rightCount)));
                 }
             }
             else if (code == KeyCode.LEFT) {
-                if(moveBall){
+                if(GamePlay.moveBall){
                     rightCount=0;
                     leftCount+=.5;
                     myPaddle.setX(myPaddle.getX() - (PADDLE_SPEED * (1 + leftCount)));
@@ -218,8 +194,8 @@ public class Main extends Application {
             }
             else if(code == KeyCode.UP){
                 if(Lives.myLives.size()!=0){
-                    removeText(pressUpText);
-                    moveBall = true;
+                    removeCollectionFromRoot(Texts.getResetBallText());
+                    GamePlay.turnMOVEBALLOON();
                 }
             }
         }
@@ -232,198 +208,31 @@ public class Main extends Application {
                 if(!root.getChildren().contains(Texts.welcomescreen)){
                     root.getChildren().remove(Texts.powerupscreen);
                 }
-                if (root.getChildren().contains(Texts.welcomescreen)) {
                     root.getChildren().remove(Texts.welcomescreen);
-                }
-
 
             }
             if(code == KeyCode.DOWN){
                 if(!root.getChildren().contains(Texts.paddlescreen)){
-                    root.getChildren().remove(Texts.getPointsscreen());
+                    removeNodeFromRoot(Texts.pointsscreen);
                 }
-                if(!root.getChildren().contains(Texts.getPointsscreen())) INGAME = true;
+                if(!root.getChildren().contains(Texts.pointsscreen)) INGAME = true;
             }
         }
 
     }
 
-    private void handleMouseInput (double x, double y) {
-        if (myPaddle.contains(x, y)) {
-            myPaddle.setScaleX(myPaddle.getScaleX() * GROWER_RATE);
-            myPaddle.setScaleY(myPaddle.getScaleY() * GROWER_RATE);
-        }
+    public static void addNodeToRoot(Node node){
+        root.getChildren().add(node);
     }
 
-    public void checkCollisons(){
-        ArrayList<ImageView> bouncers = Balls.getBouncers();
-        ArrayList<int[]> bouncerinfo = Balls.getBouncerInfo();
-        for(int k = 0; k < bouncers.size(); k ++){
-            if (myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
-                double ballCollisonLoc = bouncers.get(k).getX();
-                double paddleCollisonLoc = myPaddle.getX();
-                if(ballCollisonLoc - paddleCollisonLoc < PADDLE_WIDTH/4 || ballCollisonLoc - paddleCollisonLoc > 3 * PADDLE_WIDTH/4){
-                    bouncerinfo.get(k)[0] *= -1;
-                }
-                bouncerinfo.get(k)[1] *= -1;
-                if(PowerUps.getPaddleExpansionOn()){
-                    PaddleHitCount++;
-                }
-                consecutiveBricksHits = 0;
-            }
-
-            if(BrickBombOn){
-                for(ImageView bomb : PowerUps.getBombs()){
-                    if(myPaddle.getBoundsInLocal().intersects(bomb.getBoundsInParent())){
-                        BOMB_Direction *= -1;
-                    }
-                }
-            }
-            for(ImageView brick : Brick.getBricks()){
-                if(BrickBombOn){
-                    ArrayList<ImageView> bombs = PowerUps.getBombs();
-                    for(ImageView bomb : bombs){
-                    if(bomb.getBoundsInParent().intersects(brick.getBoundsInParent())){
-                        double x = brick.getX();
-                        double y = brick.getY();
-                        root.getChildren().remove(bomb);
-                        root.getChildren().remove(brick);
-                        Brick.removeBrick(brick);
-                        for(ImageView b : Brick.getBricks()){
-                            if(b.getX() >= x + 70 && b.getX() < x - 70 && b.getY()>= y+70 && b.getY()< x - 70) {
-                                Brick.removeBrick(b);
-                                root.getChildren().remove(brick);
-                             }
-                        }
-                    }
-                }
-            }
-                if(brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
-                bouncerinfo.get(k)[1] *= -1;
-                consecutiveBricksHits++;
-                ArrayList<ImageView> powerups =  PowerUps.getPowerUps();
-                    for(int i = 0; i < powerups.size(); i++ ){
-                        if(powerups.get(i).getBoundsInParent().intersects((brick.getBoundsInParent()))){
-                        String[] powerUpInfo = PowerUps.getPowerUpTypes().get(i);
-                        powerUpInfo[1] = "true";
-                    }
-                }
-                root.getChildren().remove(brick);
-                myPointValue += 100 * (1 + (consecutiveBricksHits * 0.5));
-                addPoints();
-                Brick.removeBrick(brick);
-                break;
-            }
-        }
+   public static void addCollectionToRoot(Collection <Node> collection){
+        root.getChildren().addAll(collection);
     }
-
-}
-    public void checkPowerUpCollisons(){
-        ArrayList<ImageView> powerUps= PowerUps.getPowerUps();
-        for(int i = 0; i < powerUps.size(); i ++){
-            if(powerUps.get(i).getBoundsInParent().intersects(myPaddle.getBoundsInParent())){
-
-                String powerUpType = PowerUps.getPowerUpTypes().get(i)[0];
-                if(powerUpType.equals("laserpower.gif")){
-                    myPaddle.setWidth(myPaddle.getWidth() * 1.5);
-                    PowerUps.setPaddleExpanderBooleanOn();
-                    powerUps.get(i).setY(900);
-                }
-                if(powerUpType.equals("extraballpower.gif")){
-                    root.getChildren().add(Balls.addBouncer());
-                    powerUps.get(i).setY(900);
-                }
-                if(powerUpType.equals("sizepower.gif")){
-                    ArrayList<ImageView> newBricks = Brick.addBricksPowerUp();
-                    for(ImageView brick : newBricks){
-                        root.getChildren().add(brick);
-                    }
-                    powerUps.get(i).setY(900);
-
-                }
-                if(powerUpType.equals("pointspower.gif")){
-                    BrickBombOn = true;
-                    ImageView bomb = powerUps.get(i);
-                    PowerUps.removeBombFromPowerUps(bomb);
-                    PowerUps.addBomb(bomb);
-                }
-            }
-        }
-    }
-
-   public static void moveBouncers(double elapsedTime){
-        ArrayList<ImageView> bouncers = Balls.getBouncers();
-        ArrayList<int[]> bouncerInfo = Balls.getBouncerInfo();
-        for(int i = 0; i < bouncers.size(); i++){
-            if(moveBall){
-                bouncers.get(i).setX(bouncers.get(i).getX() + BOUNCER_SPEED * bouncerInfo.get(i)[0] * elapsedTime);
-                bouncers.get(i).setY(bouncers.get(i).getY() + BOUNCER_SPEED * bouncerInfo.get(i)[1] * elapsedTime * 1.5);
-            }
-            if(!moveBall){
-                bouncers.get(i).setX(myPaddle.getX() + PADDLE_WIDTH/2);
-                bouncers.get(i).setY(myPaddle.getY()- PADDLE_HEIGHT - MARGIN);
-            }
-            if (bouncers.get(i).getX() >= (SIZE - 14) || bouncers.get(i).getX() < 0) {
-                int[] thisBouncerInfo = bouncerInfo.get(i);
-                thisBouncerInfo[0] *= -1;
-            }
-            if (bouncers.get(i).getY() <= 0) {
-                int[] thisBouncerInfo = bouncerInfo.get(i);
-                thisBouncerInfo[1] *= -1;
-            }
-            if(bouncers.get(i).getY() >= (SIZE/2)){
-               root.getChildren().remove(bouncers.get(i));
-               Balls.removeBouncer(bouncers.get(i));
-               if(Balls.getBouncers().size() == 0){
-                   ImageView life =  Lives.removeLife();
-                   root.getChildren().remove(life);
-               }
-            }
-        }
-   }
-
-   public static int getHitCount(){
-      return PaddleHitCount;
-   }
-
-   public static void setHitCount(int count){
-        PaddleHitCount = count;
-   }
-
-   public void changeToOriginalPaddleSize(){
-        if(!PowerUps.getPaddleExpansionOn()){
-            myPaddle.setWidth(PADDLE_WIDTH);
-        }
-   }
-
-   public void addPerminateText(){
-       myTitle = new Text();
-       myPoints = new Text();
-       myTitle.setText("Brick Breaker");
-       myTitle.setY(SIZE/2 -10);
-       myTitle.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 25));
-       myTitle.setX(SIZE/2 - myTitle.getBoundsInLocal().getWidth()/2);
-       myTitle.setFill(Color.LIGHTCORAL);
-       addPoints();
-   }
-
-   public void addPoints(){
-        root.getChildren().remove(myPoints);
-        myPoints.setText("Points:" + " " + myPointValue);
-        myPoints.setY(SIZE/2 - 10);
-        myPoints.setX(SIZE/2  + myTitle.getBoundsInLocal().getWidth()/2 + 10);
-        myPoints.setFill(Color.LIGHTPINK);
-        myPoints.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        root.getChildren().add(myPoints);
-   }
-
    public static double getPaddleX(){
         return myPaddle.getX();
    }
-   public static void setMoveBallON(){
-        moveBall = true;
-   }
-   public static void setMoveBallOff(){moveBall = false;}
+   public static double getPaddleY() {return myPaddle.getY();}
+
    public static void main (String[] args) {
         launch(args);
     }
