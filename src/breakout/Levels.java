@@ -43,7 +43,7 @@ public class Levels {
         }
         for (int i =0; i < getBrickXLocations(levelNum).size(); i ++) {
             for(int k = 0; k< getBrickYLocations(levelNum).size(); k++){
-                String bricktype = BRICKTYPES[i%3];
+                String bricktype = BRICKTYPES[k%3];
                 if(bricktype.equals(Levels.getMultipleBricks())){
                     for(int j = 0; j < numTimesToHitMultipltHitBrick; j ++){
                         ImageView brick = new ImageView(bricktype);
@@ -213,30 +213,20 @@ public class Levels {
 
         for (int i = 0; i < NUMCOLS; i++) {
             LevelTwoBrickXLocations.add((double) i * 70);
-            LevelTwoBrickYLocations.add(0.0);
         }
-
+        LevelTwoBrickYLocations.add(0.0);
         for (int i = 0; i < NUMCOLS - 2; i++) {
             LevelTwoBrickXLocations.add((double) 70 + 70 * i);
-            LevelTwoBrickYLocations.add(20.0);
         }
-
+        LevelTwoBrickYLocations.add(20.0);
         for (int i = 0; i < NUMCOLS - 4; i++) {
             LevelTwoBrickXLocations.add((double) 140 + 70 * i);
-            LevelTwoBrickYLocations.add(40.0);
         }
-
+        LevelTwoBrickYLocations.add(40.0);
         for(int i = 0; i < NUMCOLS - 6; i ++){
             LevelTwoBrickXLocations.add((double) 210 + 70 *i);
-            LevelTwoBrickYLocations.add(60.0);
         }
-
-        for(int k = 0; k < 3; k++){
-            for(int i = 0; i < NUMCOLS; i ++){
-                LevelTwoBrickXLocations.add((double) 70 *i);
-                LevelTwoBrickYLocations.add(80.0 + k * 20.0);
-            }
-        }
+        LevelTwoBrickYLocations.add(60.0);
     }
     private static void setLevelThreeBrickLocations(){
         myBricks = new ArrayList<>();
