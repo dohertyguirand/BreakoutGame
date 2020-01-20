@@ -14,8 +14,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import java.util.Collection;
 
+import java.security.Key;
+import java.util.Collection;
+import java.util.logging.Level;
 
 
 public class Main extends Application {
@@ -25,8 +27,8 @@ public class Main extends Application {
     public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
-    public static final int BOUNCER_SPEED = 150;
-    public static final int PADDLE_SPEED = 60;
+    public static final int BOUNCER_SPEED = 120;
+    public static final int PADDLE_SPEED = 50;
     public static final int PADDLE_WIDTH = 100;
     public static final int PADDLE_HEIGHT = 20;
     public static final double PaddleY = SIZE/2 - 50;
@@ -75,24 +77,14 @@ public class Main extends Application {
     private Scene setupGame () {
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
         addPaddle();
-        Levels.startNextLevel(myLevelCount);
+        Levels.setLevelOneBrickLocations();
+        Levels.startNextLevel();
         Texts.setMyForeverText();
-        addBeginningOfGameOtherClasses();
-            // respond to input
+        addCollectionToRoot(Texts.getMySplashScreenText());
         scene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
         return scene;
     }
 
-
-
-    private void addBeginningOfGameOtherClasses(){
-            addCollectionToRoot(PowerUps.getPowerUps());
-            addCollectionToRoot(Brick.getBricks());
-            addCollectionToRoot(Balls.getBouncers());
-            addCollectionToRoot(Lives.getLives());
-            addCollectionToRoot(Texts.getResetBallText());
-            addCollectionToRoot(Texts.getMySplashScreenText());
-    }
 
     private void step (double elapsedTime) {
         // update "actors" attributes
@@ -159,7 +151,6 @@ public class Main extends Application {
         LOST = false;
     }
 
-
     public static void removeNodeFromRoot(Node node){
         root.getChildren().remove(node);
     }
@@ -172,6 +163,17 @@ public class Main extends Application {
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
         if(INGAME){
+            if(code == KeyCode.DIGIT1){
+                Levels.changeCurrentLevel(1);
+                Levels.startNextLevel();
+            }
+            if(code == KeyCode.DIGIT2){
+                Levels.changeCurrentLevel(2);
+                Levels.startNextLevel();
+            }
+            if(code == KeyCode.DIGIT3){
+                Levels.changeCurrentLevel(3);
+            }
             if(code == KeyCode.L){
                 Lives.addLife();
             }
@@ -208,8 +210,7 @@ public class Main extends Application {
                 if(!root.getChildren().contains(Texts.welcomescreen)){
                     root.getChildren().remove(Texts.powerupscreen);
                 }
-                    root.getChildren().remove(Texts.welcomescreen);
-
+                    root.getChildren().remove(Texts.welcomescreen); // 1 welcomescreen 2 powerupscreen 3 paddlescreen
             }
             if(code == KeyCode.DOWN){
                 if(!root.getChildren().contains(Texts.paddlescreen)){
@@ -218,7 +219,6 @@ public class Main extends Application {
                 if(!root.getChildren().contains(Texts.pointsscreen)) INGAME = true;
             }
         }
-
     }
 
     public static void addNodeToRoot(Node node){

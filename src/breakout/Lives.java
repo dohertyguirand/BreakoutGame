@@ -13,6 +13,7 @@ public class Lives {
 
 
     public static void resetLives(){
+        if(myLives != null) Main.removeCollectionFromRoot(myLives);
         myLives = new LinkedList<>();
         for(int i = 0; i < TOTALLIVES; i ++ ){
            ImageView life = new ImageView(heartImage);

@@ -21,9 +21,11 @@ public class GamePlay {
     }
 
     private static void checkIfNoBricks() {
-        if(Brick.getBricks().size() == 0){
-            int level = Main.updateLevelCount();
-            Levels.startNextLevel(level);
+        if(Levels.getBricks().size() == 0){
+            Levels.changeCurrentLevel(Levels.getCurrentLevel() +1);
+            if(Levels.getCurrentLevel() == 3){
+            }
+            Levels.startNextLevel();
         }
     }
     public static void checkCollisons(){
@@ -42,10 +44,12 @@ public class GamePlay {
                 Points.resetConsecutiveBrickHits();
             }
 
-            for(Node brick : Brick.getBricks()){
+            for(Node brick : Levels.getAllMyBricks()){
 
                 if(brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
                     bouncerinfo.get(k)[1] *= -1;
+                    int indexOfBrick = Levels.getAllMyBricks().indexOf(brick);
+                    String bricktype = Levels.getBouncerTypes().get(indexOfBrick);
                     Points.addToConsecutiveBrickHits();
                     List<Node> powerups =  PowerUps.getPowerUps();
                     for(int i = 0; i < powerups.size(); i++ ){
@@ -54,9 +58,11 @@ public class GamePlay {
                             powerUpInfo[1] = "true";
                         }
                     }
-                    Main.removeNodeFromRoot(brick);
-                    Points.updateMyPointValue();
-                    Brick.removeBrick(brick);
+                    if(!bricktype.equals(Levels.getPerminanteBricks())){
+                        Main.removeNodeFromRoot(brick);
+                        Points.updateMyPointValue();
+                        Levels.removeBrick(brick);
+                    }
                     break;
                 }
             }
@@ -82,7 +88,7 @@ public class GamePlay {
                     PowerUps.removePowerUp(powerUp);
                 }
                 if(powerUpType.equals("sizepower.gif")){
-                    Main.addCollectionToRoot(Brick.addBricksPowerUp());
+                    Main.addCollectionToRoot(Levels.addBricksPowerUp());
                     Main.removeNodeFromRoot(powerUp);
                     PowerUps.removePowerUp(powerUp);
                 }

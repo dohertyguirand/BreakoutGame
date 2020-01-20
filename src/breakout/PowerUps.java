@@ -19,7 +19,7 @@ public class PowerUps {
     public static double[] powerUpYLocations = {140, 140, 140,140,140,140,140};
     public static boolean paddleExpanderOn = false;
     private static final int MAXHITCOUNT = 15;
-    
+
     public static void makeLevelOnePowerUps(){
         myPowerUps = new ArrayList<>();
         myPowerUpTypes = new ArrayList<>();
@@ -70,5 +70,12 @@ public class PowerUps {
     }
     public static boolean getPaddleExpansionOn(){
         return paddleExpanderOn;
+    }
+    public static void clearPowerUps(){
+        if(myPowerUps != null){
+            Main.removeCollectionFromRoot(myPowerUps);
+            myPowerUps.clear();
+            myPowerUpTypes.clear();
+        }
     }
 }
