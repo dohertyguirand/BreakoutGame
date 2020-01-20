@@ -77,7 +77,6 @@ public class Main extends Application {
     private Scene setupGame () {
         Scene scene = new Scene(root, SIZE, SIZE/2, BACKGROUND);
         addPaddle();
-        Levels.setLevelOneBrickLocations();
         Levels.startNextLevel();
         Texts.setMyForeverText();
         addCollectionToRoot(Texts.getMySplashScreenText());
@@ -127,7 +126,7 @@ public class Main extends Application {
         }
     }
 
-    public void resetPaddleAndBall(){
+    private void resetPaddleAndBall(){
         turnLOSTOFF();
         removeNodeFromRoot(myPaddle);
         addPaddle();

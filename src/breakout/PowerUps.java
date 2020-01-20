@@ -20,7 +20,7 @@ public class PowerUps {
     public static boolean paddleExpanderOn = false;
     private static final int MAXHITCOUNT = 15;
 
-    public static void makeLevelOnePowerUps(){
+    private static void makeLevelOnePowerUps(){
         myPowerUps = new ArrayList<>();
         myPowerUpTypes = new ArrayList<>();
         for(int i = 0; i < powerUpXLocations.length; i ++){
@@ -60,9 +60,11 @@ public class PowerUps {
     }
 
     public static List<Node> getPowerUps(){
+        if(myPowerUps == null) makeLevelOnePowerUps();
         return myPowerUps;
     }
     public static List<String[]> getPowerUpTypes(){
+        if(myPowerUpTypes.size() == 0) makeLevelOnePowerUps();
         return myPowerUpTypes;
     }
     public static void setPaddleExpanderBooleanOn(){

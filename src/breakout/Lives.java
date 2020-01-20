@@ -23,7 +23,6 @@ public class Lives {
         }
     }
 
-
     public static List<Node> getLives(){
         if(myLives == null) resetLives();
         return myLives;

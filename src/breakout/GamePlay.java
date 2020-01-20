@@ -19,6 +19,12 @@ public class GamePlay {
         checkPowerUpCollisons();
         PowerUps.moveTruePowerUps();
     }
+    public static void turnMOVEBALLOFF(){
+        moveBall = false;
+    }
+    public static void turnMOVEBALLOON(){
+        moveBall = true;
+    }
 
     private static void checkIfNoBricks() {
         if(Levels.getBricks().size() == 0){
@@ -28,7 +34,7 @@ public class GamePlay {
             Levels.startNextLevel();
         }
     }
-    public static void checkCollisons() {
+    private static void checkCollisons() {
         List<Node> bouncers = Balls.getBouncers();
         List<int[]> bouncerinfo = Balls.getBouncerInfo();
         for (int k = 0; k < bouncers.size(); k++) {
@@ -76,7 +82,7 @@ public class GamePlay {
         }
     }
 
-    public static void checkPowerUpCollisons(){
+    private static void checkPowerUpCollisons(){
         List<Node> powerUps= PowerUps.getPowerUps();
         for(int i = 0; i < powerUps.size(); i ++){
             ImageView powerUp = (ImageView) powerUps.get(i);
@@ -106,10 +112,9 @@ public class GamePlay {
             }
         }
     }
-    public static void checkLives(){
+    private static void checkLives(){
         int numLives = Lives.getLifeCount();
         if(numLives == 0){
-            Texts.setYouLoseText();
             Main.addCollectionToRoot(Texts.getYouLoseText());
             Main.turnLOSTON();
         }
@@ -121,7 +126,7 @@ public class GamePlay {
         }
     }
 
-    public static void moveBouncers(double elapsedTime){
+   private static void moveBouncers(double elapsedTime){
         List<Node> bouncers = Balls.getBouncers();
         List<int[]> bouncerInfo = Balls.getBouncerInfo();
         for(int i = 0; i < bouncers.size(); i++){
@@ -152,13 +157,4 @@ public class GamePlay {
             }
         }
     }
-
-    public static void turnMOVEBALLOFF(){
-        moveBall = false;
-    }
-    public static void turnMOVEBALLOON(){
-        moveBall = true;
-    }
-
-
 }
