@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
+import javax.xml.crypto.dom.DOMCryptoContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,98 +17,109 @@ public class Levels {
     private static final String perminanteBricks = "brick5.gif";
     private static final String normalBricks = "brick4.gif";
     private static final String multipleBricks = "brick1.gif";
-    private static final String[] LEVELONEBRICKTYPES = {normalBricks,normalBricks,normalBricks,normalBricks,normalBricks,normalBricks,normalBricks,normalBricks};
-    private static final String[] LEVELTWOBRICKTYPES = {perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,normalBricks};
+    private static final String[] BRICKTYPES = {normalBricks,multipleBricks,perminanteBricks};
+    private static final String[] LEVELONEBRICKTYPES = {perminanteBricks,multipleBricks,normalBricks,normalBricks,multipleBricks,normalBricks,normalBricks,normalBricks};
+    private static final String[] LEVELTWOBRICKTYPES = {perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,perminanteBricks,normalBricks,normalBricks,normalBricks,normalBricks};
     private static final String[] LEVELTHREEBRICKTYPES = LEVELONEBRICKTYPES;
-    private static double[] LevelOneBrickXLocations;
-    private static double[] LevelOneBrickYLocations;
-    private static double[] LevelTwoBrickXLocations;
-    private static double[] LevelTwoBrickYLocations;
-    private static double[] LevelThreeBrickXLocations;
-    private static double[] LevelThreeBrickYLocations;
+    private static List<Double> LevelOneBrickXLocations;
+    private static List<Double> LevelOneBrickYLocations;
+    private static List<Double> LevelTwoBrickXLocations;
+    private static List<Double> LevelTwoBrickYLocations;
+    private static List<Double> LevelThreeBrickXLocations;
+    private static List<Double> LevelThreeBrickYLocations;
     private static List<Node> myBricks;
     private static List<String> myBrickTypes;
-    private static List<Node> myPerminantBricks;
-    private static List<Node> allMyBricks;
+    private static List<Node> myPerminateBricks ;
     private static final int numTimesToHitMultipltHitBrick = 3;
 
 
 
     public static void setLevelOneBrickLocations(){
         myBricks = new ArrayList<>();
-        allMyBricks = new ArrayList<>();
         myBrickTypes = new ArrayList<>();
-        myPerminantBricks = new ArrayList<>();
-        LevelOneBrickYLocations = new double[NUMROWS];
-        LevelOneBrickXLocations = new double[NUMCOLS];
+        myPerminateBricks = new ArrayList<>();
+        LevelOneBrickYLocations = new ArrayList();
+        LevelOneBrickXLocations = new ArrayList();
         for(int i = 0; i < NUMCOLS; i ++) {
-            LevelOneBrickXLocations[i] = i * BRICKWIDTH;
-            if (i < NUMROWS) {
-                LevelOneBrickYLocations[i] = BRICKHEIGHT * i;
+            for(int k = 0; k < NUMROWS; k++){
+                LevelOneBrickXLocations.add((double)i * BRICKWIDTH);
+                LevelOneBrickYLocations.add((double)BRICKHEIGHT * k);
             }
         }
     }
 
-    public static void setLevelTwoBrickLocations(){
+    public static void setLevelTwoBrickLocations() {
         myBricks = new ArrayList<>();
-        allMyBricks= new ArrayList<>();
         myBrickTypes = new ArrayList<>();
-        myPerminantBricks = new ArrayList<>();
-        LevelTwoBrickYLocations = new double[NUMROWS];
-        LevelTwoBrickXLocations = new double[NUMCOLS];
-        for(int i = 0; i < NUMCOLS; i ++) {
-            LevelTwoBrickXLocations[i] = i * BRICKWIDTH;
-            if (i < NUMROWS) {
-                LevelTwoBrickYLocations[i] = BRICKHEIGHT * i;
+        myPerminateBricks = new ArrayList<>();
+        LevelTwoBrickYLocations = new ArrayList<>();
+        LevelTwoBrickXLocations = new ArrayList<>();
+
+        for (int i = 0; i < NUMCOLS; i++) {
+            LevelTwoBrickXLocations.add((double) i * 70);
+            LevelTwoBrickYLocations.add(0.0);
+        }
+
+        for (int i = 0; i < NUMCOLS - 2; i++) {
+            LevelTwoBrickXLocations.add((double) 70 + 70 * i);
+            LevelTwoBrickYLocations.add(20.0);
+        }
+
+        for (int i = 0; i < NUMCOLS - 4; i++) {
+            LevelTwoBrickXLocations.add((double) 140 + 70 * i);
+            LevelTwoBrickYLocations.add(40.0);
+        }
+
+        for(int i = 0; i < NUMCOLS - 6; i ++){
+            LevelTwoBrickXLocations.add((double) 210 + 70 *i);
+            LevelTwoBrickYLocations.add(60.0);
+        }
+
+        for(int k = 0; k < 3; k++){
+            for(int i = 0; i < NUMCOLS; i ++){
+                LevelTwoBrickXLocations.add((double) 70 *i);
+                LevelTwoBrickYLocations.add(80.0 + k * 20.0);
             }
         }
     }
-
     public static void setLevelThreeBrickLocations(){
         myBricks = new ArrayList<>();
         myBrickTypes = new ArrayList<>();
-        allMyBricks = new ArrayList<>();
-        myPerminantBricks = new ArrayList<>();
-        LevelThreeBrickYLocations = new double[NUMROWS];
-        LevelThreeBrickXLocations = new double[NUMCOLS];
-        for(int i = 0; i < NUMCOLS; i ++) {
-            LevelThreeBrickXLocations[i] = i * BRICKWIDTH;
-            if (i < NUMROWS) {
-                LevelThreeBrickYLocations[i] = BRICKHEIGHT * i;
+        myPerminateBricks = new ArrayList<>();
+        LevelThreeBrickYLocations = new ArrayList<>();
+        LevelThreeBrickXLocations = new ArrayList<>();
+        for(int k = 0; k < NUMROWS; k ++){
+            for(int i = 0; i < NUMCOLS; i ++){
+                LevelThreeBrickXLocations.add((double)BRICKWIDTH * i );
             }
+            LevelThreeBrickYLocations.add((double)BRICKHEIGHT * k);
         }
     }
 
     public static void makeBricks(int levelNum){
-        for (double brickXLocation : getBrickXLocations(levelNum)) {
-            for (int y = 0; y < getBrickYLocations(levelNum).length; y++) {
-                String bricktype = Levels.getLevelBrickTypes(myCurrentLevel)[y];
+        for (int i =0; i < getBrickXLocations(levelNum).size(); i ++) {
+            String bricktype = BRICKTYPES[i%3];
                 if(bricktype.equals(Levels.getMultipleBricks())){
-                    for(int i = 0; i < numTimesToHitMultipltHitBrick; i ++){
+                    for(int k = 0; k < numTimesToHitMultipltHitBrick; k ++){
                         ImageView brick = new ImageView(bricktype);
-                        brick.setX(brickXLocation);
-                        brick.setY(getBrickYLocations(levelNum)[y]);
+                        brick.setX(getBrickYLocations(levelNum).get(i));
+                        brick.setY(getBrickYLocations(levelNum).get(i));
                         myBricks.add(brick);
                         myBrickTypes.add(bricktype);
-                        allMyBricks.add(brick);
                     }
                 }
                 else{
                     ImageView brick = new ImageView(bricktype);
-                    brick.setX(brickXLocation);
-                    brick.setY(getBrickYLocations(levelNum)[y]);
+                    brick.setX(getBrickXLocations(levelNum).get(i));
+                    brick.setY(getBrickYLocations(levelNum).get(i));
                     if(!bricktype.equals(perminanteBricks)){
                         myBricks.add(brick);
-                        allMyBricks.add(brick);
                         myBrickTypes.add(bricktype);
                     }
-                    if(bricktype.equals(perminanteBricks)){
-                        myPerminantBricks.add(brick);
-                        allMyBricks.add(brick);
-                        myBrickTypes.add(bricktype);
+                    else{
+                       myPerminateBricks.add(brick);
                     }
                 }
-            }
         }
     }
 
@@ -125,11 +137,10 @@ public class Levels {
         if(levelNum == 1) return LEVELONEBRICKTYPES;
         if(levelNum == 2) return LEVELTWOBRICKTYPES;
         if(levelNum == 3) return LEVELTHREEBRICKTYPES;
-        String[] failed = {"",""};
-        return failed;
+        return new String[]{"",""};
     }
 
-    public static double[] getBrickXLocations(int levelNum){
+    public static List<Double> getBrickXLocations(int levelNum){
         if(levelNum == 1){
             if(LevelOneBrickXLocations == null){
                 setLevelOneBrickLocations();
@@ -148,10 +159,10 @@ public class Levels {
             }
             return LevelThreeBrickXLocations;
         }
-        return new double[1];
+        return new ArrayList<>();
         }
 
-    public static double[] getBrickYLocations(int levelNum){
+    public static List<Double> getBrickYLocations(int levelNum){
             if(levelNum == 1){
                 if(LevelOneBrickYLocations == null){
                     setLevelOneBrickLocations();
@@ -170,13 +181,12 @@ public class Levels {
                 }
                 return LevelThreeBrickYLocations;
             }
-            return new double[1];
+            return new ArrayList<>();
     }
 
     public static void startNextLevel(){
             clearBricks();
             PowerUps.clearPowerUps();
-            Main.removeCollectionFromRoot(myPerminantBricks);
             Main.removeCollectionFromRoot(Balls.getBouncers());
             Balls.clearBalls();
             makeBricks(myCurrentLevel);
@@ -186,7 +196,7 @@ public class Levels {
             Main.addNodeToRoot(Balls.addBouncer());
             Main.addCollectionToRoot(PowerUps.getPowerUps());
             Main.addCollectionToRoot(myBricks);
-            Main.addCollectionToRoot(myPerminantBricks);
+            Main.addCollectionToRoot(myPerminateBricks);
             Main.addCollectionToRoot(Texts.getResetBallText());
             Main.addCollectionToRoot(Lives.getLives());
     }
@@ -207,7 +217,7 @@ public class Levels {
                 brick.setX(brickXLocation);
                 brick.setY(brickYLocation);
                 myBricks.add(brick);
-                allMyBricks.add(brick);
+                myBrickTypes.add(Levels.getNormalBricks());
                 ret.add(brick);
             }
         }
@@ -224,21 +234,22 @@ public class Levels {
         int index = myBricks.indexOf(brick);
         myBricks.remove(brick);
         myBrickTypes.remove(index);
-        allMyBricks.remove(brick);
+        Main.removeNodeFromRoot(brick);
     }
     public static void changeCurrentLevel(int level){
         myCurrentLevel = level;
     }
     public static void clearBricks(){
         Main.removeCollectionFromRoot(myBricks);
+        Main.removeCollectionFromRoot(myPerminateBricks);
         myBrickTypes.clear();
         myBricks.clear();
-        allMyBricks.clear();
+        myPerminateBricks.clear();
+    }
+    public static List<Node> getMyPerminateBricks(){
+        return myPerminateBricks;
     }
     public static int getCurrentLevel(){
         return myCurrentLevel;
-    }
-    public static List<Node> getAllMyBricks(){
-        return allMyBricks;
     }
 }

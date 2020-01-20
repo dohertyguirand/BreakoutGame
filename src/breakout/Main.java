@@ -144,19 +144,13 @@ public class Main extends Application {
         myLevelCount++;
         return myLevelCount;
     }
-    public static void turnLOSTON(){
+    public static void turnLOSTON(){  //used when numlives == 0
         LOST = true;
     }
     public static void turnLOSTOFF(){
         LOST = false;
     }
 
-    public static void removeNodeFromRoot(Node node){
-        root.getChildren().remove(node);
-    }
-    public static void removeCollectionFromRoot(Collection<Node> collection){
-        root.getChildren().removeAll(collection);
-    }
 
 
 
@@ -220,6 +214,13 @@ public class Main extends Application {
             }
         }
     }
+    public static void removeNodeFromRoot(Node node){
+        root.getChildren().remove(node);
+    }
+    public static void removeCollectionFromRoot(Collection<Node> collection){
+        root.getChildren().removeAll(collection);
+    }
+
 
     public static void addNodeToRoot(Node node){
         root.getChildren().add(node);
@@ -228,7 +229,8 @@ public class Main extends Application {
    public static void addCollectionToRoot(Collection <Node> collection){
         root.getChildren().addAll(collection);
     }
-   public static double getPaddleX(){
+   public static double getPaddleX(){ //getPaddleX() and gerPaddleY() are used to set ball to
+                                        // paddle location when new ball is added
         return myPaddle.getX();
    }
    public static double getPaddleY() {return myPaddle.getY();}

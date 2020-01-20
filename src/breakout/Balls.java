@@ -21,7 +21,7 @@ public class Balls {
     }
 
     public static void addBouncerInfo() {
-        int[] info = {1, 1};
+        int[] info = {-1, 1};
         myBouncerInfo.add(info);
     }
 

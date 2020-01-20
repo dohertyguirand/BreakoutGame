@@ -14,7 +14,7 @@ public class PowerUps {
     private static String paddleExpanderImage = "laserpower.gif" ;
     private static String additionalBallsImage = "extraballpower.gif";
     private static String brickAdderImage = "sizepower.gif";
-    private static String[] myPowerUpImages = {additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage,additionalBallsImage};
+    private static String[] myPowerUpImages = {paddleExpanderImage,additionalBallsImage,additionalBallsImage,paddleExpanderImage,paddleExpanderImage,brickAdderImage,additionalBallsImage};
     public static double[] powerUpXLocations = {0, 70, 140, 210, 280,350, 420};
     public static double[] powerUpYLocations = {140, 140, 140,140,140,140,140};
     public static boolean paddleExpanderOn = false;

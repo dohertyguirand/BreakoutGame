@@ -28,15 +28,15 @@ public class GamePlay {
             Levels.startNextLevel();
         }
     }
-    public static void checkCollisons(){
+    public static void checkCollisons() {
         List<Node> bouncers = Balls.getBouncers();
         List<int[]> bouncerinfo = Balls.getBouncerInfo();
-        for(int k = 0; k < bouncers.size(); k ++){
-            if (Main.myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
+        for (int k = 0; k < bouncers.size(); k++) {
+            if (Main.myPaddle.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
                 ImageView bouncer = (ImageView) bouncers.get(k);
                 double ballCollisonLoc = (bouncer.getX());
                 double paddleCollisonLoc = Main.getPaddleX();
-                if(ballCollisonLoc - paddleCollisonLoc < Main.PADDLE_WIDTH/4 || ballCollisonLoc - paddleCollisonLoc > 3 * Main.PADDLE_WIDTH/4){
+                if (ballCollisonLoc - paddleCollisonLoc < Main.PADDLE_WIDTH / 4 || ballCollisonLoc - paddleCollisonLoc > 3 * Main.PADDLE_WIDTH / 4) {
                     bouncerinfo.get(k)[0] *= -1;
                 }
                 bouncerinfo.get(k)[1] *= -1;
@@ -44,24 +44,31 @@ public class GamePlay {
                 Points.resetConsecutiveBrickHits();
             }
 
-            for(Node brick : Levels.getAllMyBricks()){
-
-                if(brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())){
+            for (Node brick : Levels.getBricks()) {
+                if (brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
                     bouncerinfo.get(k)[1] *= -1;
-                    int indexOfBrick = Levels.getAllMyBricks().indexOf(brick);
-                    String bricktype = Levels.getBouncerTypes().get(indexOfBrick);
                     Points.addToConsecutiveBrickHits();
-                    List<Node> powerups =  PowerUps.getPowerUps();
-                    for(int i = 0; i < powerups.size(); i++ ){
-                        if(powerups.get(i).getBoundsInParent().intersects((brick.getBoundsInParent()))){
+                    List<Node> powerups = PowerUps.getPowerUps();
+                    for (int i = 0; i < powerups.size(); i++) {
+                        if (powerups.get(i).getBoundsInParent().intersects((brick.getBoundsInParent()))) {
                             String[] powerUpInfo = PowerUps.getPowerUpTypes().get(i);
                             powerUpInfo[1] = "true";
                         }
                     }
-                    if(!bricktype.equals(Levels.getPerminanteBricks())){
-                        Main.removeNodeFromRoot(brick);
-                        Points.updateMyPointValue();
-                        Levels.removeBrick(brick);
+                    Points.updateMyPointValue();
+                    Levels.removeBrick(brick);
+                    break;
+                }
+            }
+            for (Node brick : Levels.getMyPerminateBricks()) {
+                if (brick.getBoundsInParent().intersects(bouncers.get(k).getBoundsInParent())) {
+                    bouncerinfo.get(k)[1] *= -1;
+                    List<Node> powerups = PowerUps.getPowerUps();
+                    for (int i = 0; i < powerups.size(); i++) {
+                        if (powerups.get(i).getBoundsInParent().intersects((brick.getBoundsInParent()))) {
+                            String[] powerUpInfo = PowerUps.getPowerUpTypes().get(i);
+                            powerUpInfo[1] = "true";
+                        }
                     }
                     break;
                 }
