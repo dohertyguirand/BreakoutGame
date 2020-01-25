@@ -9,6 +9,7 @@ import java.util.List;
 // the mypowerups and mypoweruptypes must be parallel arrays
 
 public class PowerUps {
+
     public static List<Node> myPowerUps;
     public static List<String[]> myPowerUpTypes;
     private static final int myPowerUpFallSpeed =150;
